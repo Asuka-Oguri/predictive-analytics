@@ -1,0 +1,49 @@
+\documentclass[12pt,a4paper,oneside,openany]{book}
+\usepackage{styles/uet-report}
+\usepackage{amsmath,amssymb}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{pdflscape}
+
+\newcommand{\reporttitle}{NGHIÊN CỨU VÀ THỰC NGHIỆM MÔ HÌNH DỰ BÁO TIÊU THỤ NĂNG LƯỢNG\\KẾT HỢP FEATURE SELECTION VÀ INTERPRETABLE MACHINE LEARNING}
+\newcommand{\reporttype}{BÁO CÁO GIỮA KỲ}
+\newcommand{\coursename}{Phân tích dữ liệu dự báo}
+\newcommand{\studentname}{NGUYỄN THÁI SƠN}
+\newcommand{\majorname}{Hệ thống thông tin}
+\newcommand{\lecturername}{TS.Nguyễn Thị Hậu}
+\newcommand{\reportyear}{2026}
+
+\begin{document}
+\selectlanguage{vietnamese}
+\hypersetup{pageanchor=false}
+\input{frontmatter/titlepage}
+\hypersetup{pageanchor=true}
+
+\frontmatter
+\input{frontmatter/abstract-vi}
+\tableofcontents
+\clearpage
+\input{frontmatter/abbreviations}
+\listoffigures
+\addcontentsline{toc}{chapter}{Danh sách hình vẽ}
+\listoftables
+\addcontentsline{toc}{chapter}{Danh sách bảng}
+
+\mainmatter
+\pagestyle{plain}
+\input{chapters/00-mo-dau}
+\input{chapters/01-gioi-thieu}
+\input{chapters/02-co-so-ly-thuyet}
+\input{chapters/03-ket-qua-tac-gia}
+\input{chapters/04-du-lieu-thuc-nghiem}
+\input{chapters/05-ket-qua-danh-gia}
+\input{chapters/06-ket-luan}
+
+\input{chapters/references}
+\appendix
+\input{chapters/phu-luc-a}
+\input{chapters/phu-luc-b}
+\input{chapters/phu-luc-c}
+\input{chapters/phu-luc-d}
+\end{document}
