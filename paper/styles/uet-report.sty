@@ -1,0 +1,92 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{uet-report}[2026/10/23 UET midterm report style]
+
+% pdfLaTeX + tieng Viet Unicode UTF-8; khong can XeLaTeX
+\RequirePackage[T5]{fontenc}
+\RequirePackage[utf8]{inputenc}
+\RequirePackage[english,vietnamese]{babel}
+\RequirePackage{mathptmx}
+\RequirePackage{geometry}
+\geometry{a4paper,left=3.2cm,right=2.5cm,top=2.6cm,bottom=2.6cm}
+\RequirePackage{setspace}
+\raggedbottom
+\setstretch{1.32}
+\RequirePackage{indentfirst}
+\setlength{\parindent}{1.15cm}
+\setlength{\parskip}{0pt}
+\RequirePackage{amsmath,amssymb,mathtools}
+\RequirePackage{graphicx}
+\graphicspath{{figures/}}
+\RequirePackage{float}
+\RequirePackage{booktabs}
+\RequirePackage{array}
+\RequirePackage{calc}
+\RequirePackage{xurl}
+\RequirePackage{etoolbox}
+\RequirePackage{tocloft}
+\RequirePackage{longtable}
+\RequirePackage{multirow}
+\RequirePackage{caption}
+\captionsetup{font=small,labelfont=bf,justification=centering}
+\RequirePackage{xcolor}
+\RequirePackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc}
+\RequirePackage{enumitem}
+\setlist[itemize]{topsep=3pt,itemsep=2pt}
+\RequirePackage{hyperref}
+\hypersetup{unicode=true,colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue,
+  pdftitle={Tái hiện framework dự báo tiêu thụ năng lượng},pdfauthor={[HỌ VÀ TÊN SINH VIÊN]}}
+
+% Danh sach va nhan theo tieng Viet
+\addto\captionsvietnamese{%
+  \renewcommand{\contentsname}{Mục lục}%
+  \renewcommand{\listfigurename}{Danh sách hình vẽ}%
+  \renewcommand{\listtablename}{Danh sách bảng}%
+  \renewcommand{\figurename}{Hình}%
+  \renewcommand{\tablename}{Bảng}%
+  \renewcommand{\bibname}{Tài liệu tham khảo}%
+  \renewcommand{\chaptername}{Chương}%
+}
+
+% Gia tri la placeholders chua phai ket qua nghien cuu
+\newcommand{\todoentry}[1]{\par\noindent\begingroup\sloppy{\itshape\color{black!65}[Cần bổ sung: #1]}\par\endgroup}
+
+
+% Tuong thich voi LaTeX do Pandoc chuyen tu Word.
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.12}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{6pt}
+\captionsetup{labelsep=period}
+\addto\captionsvietnamese{\renewcommand{\appendixname}{Phụ lục}}
+
+% Mot so ky tu Toan hoc/Unicode co trong van ban Word.
+\DeclareUnicodeCharacter{00B1}{\ensuremath{\pm}}
+\DeclareUnicodeCharacter{00B2}{\textsuperscript{2}}
+\DeclareUnicodeCharacter{00B3}{\textsuperscript{3}}
+\DeclareUnicodeCharacter{00B7}{\textperiodcentered}
+\DeclareUnicodeCharacter{00D7}{\ensuremath{\times}}
+\DeclareUnicodeCharacter{0160}{\v{S}}
+\DeclareUnicodeCharacter{0177}{\^{y}}
+\DeclareUnicodeCharacter{0233}{\={y}}
+\DeclareUnicodeCharacter{03A3}{\ensuremath{\Sigma}}
+\DeclareUnicodeCharacter{03B1}{\ensuremath{\alpha}}
+\DeclareUnicodeCharacter{03B8}{\ensuremath{\theta}}
+\DeclareUnicodeCharacter{03C3}{\ensuremath{\sigma}}
+\DeclareUnicodeCharacter{03C6}{\ensuremath{\phi}}
+\DeclareUnicodeCharacter{2070}{\textsuperscript{0}}
+\DeclareUnicodeCharacter{2076}{\textsuperscript{6}}
+\DeclareUnicodeCharacter{2080}{\textsubscript{0}}
+\DeclareUnicodeCharacter{2081}{\textsubscript{1}}
+\DeclareUnicodeCharacter{2082}{\textsubscript{2}}
+\DeclareUnicodeCharacter{2208}{\ensuremath{\in}}
+\DeclareUnicodeCharacter{2212}{\ensuremath{-}}
+\DeclareUnicodeCharacter{2265}{\ensuremath{\geq}}
+
+\setlength{\emergencystretch}{2em}
+\AtBeginEnvironment{longtable}{\small\sloppy}
+\AtEndEnvironment{longtable}{\normalsize}
+
+\setlength{\cftfignumwidth}{4.2em}
+\setlength{\cfttabnumwidth}{5.6em}
