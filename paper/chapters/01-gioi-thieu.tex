@@ -1,0 +1,119 @@
+\chapter{Giới thiệu đề tài}\label{chap:7}
+
+\section{Bối cảnh và chủ đề nghiên cứu}\label{bux1ed1i-cux1ea3nh-vuxe0-chux1ee7-ux111ux1ec1-nghiuxean-cux1ee9u}
+
+Nhu cầu dự báo năng lượng xuất hiện ở nhiều cấp độ: thiết bị, hộ gia đình, tòa nhà, ngành kinh tế và hệ thống năng lượng quốc gia. Ở cấp độ công trình, dữ liệu được ghi nhận với tần suất cao và gắn với cảm biến nhiệt độ, độ ẩm, chiếu sáng cùng dữ liệu thời tiết. Đặc điểm này giúp xây dựng các mô hình dự báo ngắn hạn, nhưng đồng thời làm tăng số lượng biến và nguy cơ đa cộng tuyến, dư thừa thông tin hoặc phụ thuộc quá mức vào một số biến trễ.
+
+Các mô hình hồi quy tuyến tính thường dễ diễn giải nhưng có thể không mô tả đầy đủ quan hệ phi tuyến. SVR với kernel RBF, GPR và LSBoost cung cấp khả năng mô hình hóa linh hoạt hơn, tuy nhiên tính phức tạp tăng lên và việc giải thích vai trò của từng biến trở nên quan trọng. Vì vậy, feature selection và explainable machine learning có thể được xem như hai thành phần bổ sung: thành phần thứ nhất giảm chiều đầu vào, thành phần thứ hai diễn giải dự báo sau khi mô hình được huấn luyện.
+
+\section{Phát biểu bài toán}\label{phuxe1t-biux1ec3u-buxe0i-touxe1n}
+
+Cho chuỗi quan sát tại các thời điểm cách nhau 10 phút. Tại thời điểm $t$, vector đặc trưng gồm các biến cảm biến, thời tiết, chiếu sáng, đặc trưng thời gian và mức tiêu thụ \texttt{Appliances} tại thời điểm hiện tại. Mục tiêu là dự báo mức tiêu thụ \texttt{Appliances} tại bản ghi kế tiếp:
+
+\begin{equation}
+    \hat{y}(t+1) = f_{\theta}(x(t)),
+    \quad x(t) \in \mathbb{R}^{36},
+    \quad \hat{y}(t+1) \in \mathbb{R}.
+    \label{eq:forecast}
+\end{equation}
+
+Trong đó, $\hat{y}(t+1)$ được ánh xạ từ cột
+\texttt{Appliances\_t\_plus\_1}; tần suất dữ liệu đều 10 phút nên
+horizon one-step bằng 10 phút. Đây là dự báo điểm cho một thời điểm
+tương lai, không phải dự báo multi-horizon $H$-step như một số bài toán
+forecasting dài hạn.
+
+\section{Thách thức của bài toán}\label{thuxe1ch-thux1ee9c-cux1ee7a-buxe0i-touxe1n}
+
+Thứ nhất, các biến cảm biến có thang đo và tính chất khác nhau. Nhiệt độ, độ ẩm, áp suất, tốc độ gió, ánh sáng và năng lượng không thể so sánh trực tiếp nếu không chuẩn hóa. Việc fit scaler trên toàn bộ dữ liệu cũng có thể làm rò rỉ thông tin từ giai đoạn test, do đó notebook chỉ fit \texttt{MinMaxScaler} trên tập \texttt{train}.
+
+Thứ hai, thời gian có cấu trúc chu kỳ và tự tương quan. Giá trị tiêu thụ ở thời điểm gần nhất thường mang thông tin mạnh về mười phút tiếp theo. Nếu không kiểm soát, mô hình có thể đạt kết quả tốt chủ yếu nhờ lag target, thay vì khai thác các biến môi trường. Đặc điểm này trở thành vấn đề quan trọng khi \texttt{S2} và \texttt{S1S2} chỉ chọn \texttt{Appliances\_t}.
+
+Thứ ba, feature selection có đánh đổi giữa tốc độ và tính gắn với estimator. Filter đánh giá đặc trưng tương đối độc lập với mô hình; wrapper tìm tập biến dựa trên hiệu năng của estimator nhưng chi phí cao; hybrid dùng filter để rút gọn không gian tìm kiếm trước khi wrapper tối ưu.
+
+Thứ tư, nhiều biến cảm biến có tương quan, khiến importance và SHAP có thể phân bổ ảnh hưởng không ổn định giữa các biến thay thế.
+
+Thứ năm, việc tái hiện một framework trên dataset khác đòi hỏi ánh xạ thuật toán và công cụ. Khác biệt giữa MATLAB và scikit-learn, cũng như giới hạn tính toán khi chạy wrapper trên dữ liệu tần suất cao, có thể làm kết quả khác bài báo gốc. Các khác biệt này cần được định lượng và ghi nhận thay vì che giấu.
+
+\section{Bài báo gốc và những đóng góp chính}\label{buxe0i-buxe1o-gux1ed1c-vuxe0-nhux1eefng-ux111uxf3ng-guxf3p-chuxednh}
+
+Bài báo tham chiếu là ``Innovative framework for accurate and transparent forecasting of energy consumption: A fusion of feature selection and interpretable machine learning'' của Eskandari, Saadatmand, Ramzan và Mousapour, xuất bản trên Applied Energy, tập 366, năm 2024, số bài 123314, DOI 10.1016/j.apenergy.2024.123314 [1]. Nghiên cứu xây dựng framework dự báo tiêu thụ năng lượng cuối cùng tổng hợp ở cấp quốc gia tại Vương quốc Anh, sử dụng các biến liên quan đến năng lượng, kinh tế-xã hội, dân số, khí tượng và thời gian. Bài báo nhấn mạnh ba đóng góp phương pháp: ensemble filter mới, so sánh có hệ thống ba chiến lược feature selection với năm estimator, và sử dụng SHAP cho mô hình có hiệu năng cao [1].
+
+\begin{small}
+\begin{longtable}{
+    @{}
+    >{\raggedright\arraybackslash}p{0.18\textwidth}
+    >{\raggedright\arraybackslash}p{0.31\textwidth}
+    >{\raggedright\arraybackslash}p{0.40\textwidth}
+    @{}
+}
+\caption{Đối chiếu mục tiêu và nội dung bài báo tham chiếu.}
+\label{tab:01-gioi-thieu-0-i-chi-u-m-c-ti-u-v-n-i-dung-b-i-b-o-tham-chi-u}\\
+\toprule
+\textbf{Đóng góp bài báo}
+&
+\textbf{Ý nghĩa phương pháp}
+&
+\textbf{Ánh xạ trong notebook}
+\\
+\midrule
+\endfirsthead
+
+\toprule
+\textbf{Đóng góp bài báo}
+&
+\textbf{Ý nghĩa phương pháp}
+&
+\textbf{Ánh xạ trong notebook}
+\\
+\midrule
+\endhead
+
+\midrule
+\endfoot
+
+\bottomrule
+\endlastfoot
+
+Ensemble filter
+&
+Kết hợp nhiều bộ chọn biến có logic khác nhau bằng điểm importance tổng hợp và voting.
+&
+\texttt{mRMR}, Random Forest, \texttt{RReliefF}, \texttt{F-test FS}; equal-weight mean và ngưỡng vote $\geq 2$.
+\\
+
+So sánh S1/S2/S1S2
+&
+So sánh filter, wrapper, hybrid trên năm estimator thay vì chọn một quy trình duy nhất.
+&
+20 cấu hình: \texttt{S0}, \texttt{S1}, \texttt{S2}, \texttt{S1S2} $\times$ 5 model.
+\\
+
+SIFE wrapper
+&
+Tối ưu đồng thời sai số validation và kích thước subset.
+&
+Python port theo mô tả; Jaccard diversity proxy; capped samples.
+\\
+
+SHAP
+&
+Phân rã dự báo thành các đóng góp của feature để hỗ trợ diễn giải.
+&
+\texttt{PermutationExplainer} trên mô hình tốt nhất mỗi track; ngân sách evaluation giới hạn.
+\\
+
+\end{longtable}
+\end{small}
+
+\section{Công trình và phương pháp liên quan}\label{cuxf4ng-truxecnh-vuxe0-phux1b0ux1a1ng-phuxe1p-liuxean-quan}
+
+Trong Feature Selection, filter methods sử dụng thước đo thống kê hoặc thông tin để đánh giá độ liên quan của từng biến; ưu điểm là hiệu quả tính toán và ít phụ thuộc estimator, nhưng có thể không tối ưu tập biến cho một mô hình cụ thể. Embedded methods như Random Forest trích xuất importance trong quá trình học mô hình; wrapper methods lặp lại huấn luyện và đánh giá các tập biến, vì thế có khả năng phản ánh trực tiếp chất lượng dự báo nhưng tốn tài nguyên hơn [1,12]. Hybrid kết hợp bước rút gọn nhanh với bước tối ưu theo mô hình, hướng tới cân bằng giữa chi phí và chất lượng tập biến.
+
+Trong bài toán dự báo năng lượng, nghiên cứu gốc nhấn mạnh rằng phần lớn công trình trước đây thường chỉ dùng một hướng feature selection hoặc một số ít biến được chọn trước. Framework của Eskandari và cộng sự khác biệt ở chỗ tổ chức một phép so sánh giữa ensemble filter, wrapper và hybrid, đồng thời sử dụng năm estimator và SHAP để xem xét cả accuracy và interpretability [1]. Tuy nhiên, kết quả của một framework không đảm bảo mọi nhánh đều thắng trên mọi dataset; lợi ích cần được kiểm định trên từng miền dữ liệu.
+
+\section{Mục tiêu và phạm vi nghiên cứu}\label{mux1ee5c-tiuxeau-vuxe0-phux1ea1m-vi-nghiuxean-cux1ee9u}
+
+Mục tiêu chính là tái triển khai các bước cốt lõi của framework trên dữ liệu KAG, đo lường hiệu năng của các subset \texttt{S0}, \texttt{S1}, \texttt{S2}, \texttt{S1S2} và phân tích mức độ tương đương với bài báo gốc. Phạm vi gồm xử lý dữ liệu, ensemble filter, SIFE wrapper, Bayesian Optimization, năm estimator, baseline, SHAP và hai thí nghiệm bổ sung đã hoàn tất là Lag Feature Ablation và Gaussian Noise Robustness.
+
+Báo cáo không tuyên bố tái hiện trực tiếp các trị số của Table 7 trong bài báo vì dataset, tần suất, target, miền dữ liệu và cách triển khai khác nhau. Các cải tiến chưa chạy như Full No-Lag với feature selection được chạy lại từ 35 biến, SHAP chính xác trên toàn bộ tập test, nhiều seed độc lập hoặc kiểm định thống kê theo block được trình bày như hướng phát triển, không phải kết quả hiện tại.

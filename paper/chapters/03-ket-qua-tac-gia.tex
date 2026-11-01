@@ -1,0 +1,270 @@
+\chapter{Kết quả thực nghiệm được công bố trong bài báo gốc}
+\label{chap:original-authors-results}
+
+\section{Phạm vi và nguyên tắc trình bày}
+
+Chương này bổ sung phần kết quả thực nghiệm do Eskandari và cộng sự công bố trong bài báo \emph{Innovative framework for accurate and transparent forecasting of energy consumption: A fusion of feature selection and interpretable machine learning} (\emph{Applied Energy}, tập 366, số bài 123314, năm 2024) [1]. Các số liệu trong chương được trích từ bài báo gốc, chủ yếu từ Table 3--7 và các Fig. 5--13. Đây là \textbf{kết quả tham chiếu do tác giả công bố}, không phải kết quả do notebook ABC(3) của báo cáo này tạo ra.
+
+Việc bổ sung chương riêng nhằm tạo một mốc tham chiếu có thể kiểm tra được trước khi đọc kết quả trên bộ Appliances Energy Prediction ở Chương 4. Hai nhóm kết quả được giữ tách biệt vì nghiên cứu gốc sử dụng dữ liệu tiêu thụ năng lượng quốc gia của Vương quốc Anh theo tháng, trong khi project hiện tại sử dụng dữ liệu cảm biến của một hộ gia đình theo chu kỳ 10 phút. Do khác biệt về miền dữ liệu, tần suất, target, phân phối và thang đo, các trị số RMSE, MAE hoặc $R^2$ của hai nghiên cứu \textbf{không được gộp vào cùng một bảng xếp hạng và không được so sánh trực tiếp theo độ lớn tuyệt đối}.
+
+Trong chương này, các thuật ngữ S1, S2 và S1S2 được dùng theo định nghĩa của bài báo: S1 là Ensemble Filter; S2 là Wrapper; S1S2 là Ensemble Filter--Wrapper. Nội dung được trình bày theo đúng thứ tự logic của nghiên cứu: bối cảnh dữ liệu và thiết lập, kết quả lựa chọn đặc trưng, kết quả dự báo, phân tích SHAP, sau cùng là đánh giá ưu thế và giới hạn của framework.
+
+\section{Dataset và thiết lập thực nghiệm của tác giả}
+
+\subsection{Dataset và biến mục tiêu}
+
+Bài báo nghiên cứu tiêu thụ năng lượng (Energy Consumption -- EC) tổng hợp ở cấp quốc gia của Vương quốc Anh, bao phủ các lĩnh vực dân dụng, giao thông, thương mại và công nghiệp. Phần mô tả dữ liệu nêu giai đoạn 1995--2021; hình diễn biến tổng tiêu thụ năng lượng trong bài báo thể hiện chuỗi từ tháng 01/1995 đến tháng 03/2023. Tác giả lưu ý các quan sát năm 2020--2021 có biến động liên quan tới đại dịch COVID-19 và việc giữ hai năm này trong dataset làm sai số dự báo tăng so với trường hợp loại bỏ chúng. Đây là mô tả và nhận định của nghiên cứu gốc, không phải kết quả được kiểm tra lại trong project KAG.
+
+Bài báo sử dụng 18 đặc trưng đầu vào, gồm 15 biến kinh tế, năng lượng và môi trường cùng ba biến thời gian: \texttt{Mon\#}, \texttt{SinM} và \texttt{CosM}. Biến mục tiêu là tổng tiêu thụ năng lượng cuối cùng theo tháng, ký hiệu \texttt{EC}; bài toán là dự báo \texttt{EC(t+1)}. Các nhóm thông tin đầu vào bao gồm tiêu thụ của các nguồn nhiên liệu, GDP bình quân đầu người, dân số, nhiệt độ, cường độ năng lượng và giá năng lượng thực. Danh sách tên biến và viết tắt được trình bày trong Table 2 của bài báo; các hình dữ liệu gốc được lưu tại Phụ lục D.
+
+Nguồn dữ liệu được tác giả tổng hợp từ UK Department for Energy Security and Net Zero, UK Office for National Statistics và International Energy Agency. Hai biến Population và Energy intensity có dữ liệu gốc theo năm; tác giả mô tả việc chuyển tần suất lên tháng bằng Chow--Lin regression-based interpolation trong EViews. Các biến theo tháng khác được giữ theo nguồn dữ liệu tương ứng. Bài báo nhấn mạnh việc không nội suy tùy tiện những biến có tính mùa vụ hoặc biến động không chắc chắn vì có thể tạo ra diễn giải sai lệch.
+
+\subsection{Tiền xử lý và phân chia dữ liệu}
+
+Tác giả sử dụng mã hóa chu kỳ cho biến tháng bằng các thành phần sine và cosine, kết hợp biểu diễn thứ tự tháng. Dữ liệu được chuẩn hóa Min--Max về khoảng $[0,1]$ theo biểu thức:
+\begin{equation}
+ x_{\mathrm{norm}}=\frac{x-x_{\min}}{x_{\max}-x_{\min}}.
+ \label{eq:paper-minmax}
+\end{equation}
+Mục đích là đưa các đặc trưng về cùng thang đo, đặc biệt hữu ích đối với các thuật toán dựa trên khoảng cách hoặc độ lớn đặc trưng.
+
+Theo mục 4.3 của bài báo, 80\% dữ liệu được sử dụng cho huấn luyện và tối ưu siêu tham số, 20\% còn lại được giữ làm test set. Bayesian Optimization được thực hiện bằng MATLAB Statistics and Machine Learning Toolbox. Tác giả nhận xét rằng việc tối ưu siêu tham số chỉ tạo ra cải thiện nhỏ trong một số ít cấu hình trên tổng số 15 cấu hình, do đó không nên diễn giải Bayesian Optimization như yếu tố bảo đảm mọi mô hình đều tăng hiệu năng đáng kể.
+
+\subsection{Các mô hình và siêu tham số}
+
+Nghiên cứu đánh giá năm mô hình: LASSO, SVR-Linear, SVR-RBF, GPR và LSBoost. Table 3 của bài báo công bố các giá trị siêu tham số được tổng hợp tại Bảng~\ref{tab:authors-model-hyperparameters}.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Các siêu tham số mô hình được công bố trong Table 3 của bài báo gốc.}
+\label{tab:authors-model-hyperparameters}
+\begin{tabular}{p{2.6cm}p{5.0cm}p{5.2cm}}
+\toprule
+\textbf{Mô hình} & \textbf{Siêu tham số} & \textbf{Giá trị được công bố} \\
+\midrule
+LASSO & Learner; Regularization; $\lambda$ & Least Square; Lasso; $1.16\times10^{-4}$ \\
+SVR-Linear & Box constraint; Epsilon & 10; 0.005 \\
+SVR-RBF & Box constraint I; Gamma ($\gamma$); Epsilon & 10.5; 35; 0.003 \\
+LSBoost & Maximum number splits; Pruning; Number of learning cycles; Learning rate & 12; Off; 8; 0.28 \\
+GPR & Sigma; Prediction method; Basis function & 0.046; Subset of regressors approximation; ``Peru Quadratic'' (cách ghi trong Table 3) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Bài báo mô tả GPR với phương pháp xấp xỉ subset of regressors. Cụm ``Peru Quadratic'' được giữ nguyên theo cách ghi trong bảng của bài báo, không tự ý sửa thành thuật ngữ khác trong phần trích kết quả. Ngoài ra, phần mô tả thiết lập thực nghiệm của bài báo có chỗ nêu MATLAB R2022b, trong khi mục 4.3 nêu MATLAB R2023b; đây là khác biệt nội bộ trong văn bản nguồn và được ghi nhận thay vì tự chọn một phiên bản để khẳng định.
+
+\subsection{Cấu hình SIFE}
+
+SIFE (Set-based Integer-coded Fuzzy granular Evolutionary) là thuật toán Wrapper được bài báo sử dụng. Bài báo mô tả cơ chế lai ghép ba cha mẹ dựa trên các phép toán tập hợp như union và intersection; fuzzy granulation hỗ trợ khởi tạo quần thể và lựa chọn cá thể ưu tú, qua đó duy trì đa dạng tìm kiếm. Các tham số SIFE được công bố tại Table 4 và tổng hợp ở Bảng~\ref{tab:authors-sife-params}.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Các tham số SIFE được công bố trong Table 4 của bài báo gốc.}
+\label{tab:authors-sife-params}
+\begin{tabular}{lc}
+\toprule
+\textbf{Tham số} & \textbf{Giá trị} \\
+\midrule
+Population Size & 120 \\
+Maximum iteration & 60 \\
+Crossover probability & 0.6 \\
+Mutation probability & 0.5 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Hàm mục tiêu được mô tả theo dạng kết hợp sai số mô hình và tỷ lệ số đặc trưng được chọn:
+\begin{equation}
+ F(s_i)=w_1 E_r(s_i)+w_2 P_s(s_i),\qquad w_1=0.80,\quad w_2=0.20.
+ \label{eq:authors-sife-objective}
+\end{equation}
+Trong đó $E_r(s_i)$ là sai số đánh giá của tập đặc trưng $s_i$, còn $P_s(s_i)$ là tỷ lệ đặc trưng được giữ lại. Theo thiết kế, SIFE không chỉ tối thiểu hóa lỗi dự báo mà còn khuyến khích tập đặc trưng gọn hơn. Đổi lại, Wrapper phải huấn luyện/đánh giá mô hình cho nhiều tập ứng viên nên thường tiêu tốn tính toán hơn Filter.
+
+\section{Kết quả Feature Selection của tác giả}
+
+\subsection{Ensemble Filter và kết quả xếp hạng đặc trưng}
+
+Ensemble Filter kết hợp bốn phương pháp: mRMR, Random Forest (RF), F-test và Relief. Bốn bộ chọn có cơ sở đánh giá khác nhau: mRMR cân bằng độ liên quan với target và độ dư thừa giữa đặc trưng; RF cung cấp importance từ mô hình cây; F-test đánh giá mức độ liên hệ thống kê đơn biến; Relief cập nhật trọng số dựa trên khác biệt giữa các điểm lân cận. Tác giả sử dụng quá trình loại dần đặc trưng ít quan trọng trong từng phương pháp, sau đó kết hợp điểm importance với cơ chế voting. Những đặc trưng có điểm trung bình cao và nhận ít nhất hai phiếu được xem xét cho tập cuối cùng.
+
+Table 5 cho thấy \texttt{CosM} đứng đầu theo average importance (0.897, final rank 1); tiếp theo là \texttt{EC(t)} (0.788, rank 2), \texttt{Gas} (0.528, rank 3), \texttt{Mn\#} (0.507, rank 4), \texttt{SinM} (0.320, rank 5), \texttt{P-Gas} (0.297, rank 6), \texttt{SRnw} (0.291, rank 7), \texttt{Coal} (0.287, rank 8), \texttt{Temp} (0.208, rank 9) và \texttt{Pop} (0.198, rank 10). Các kết quả thể hiện rằng biến thời gian theo chu kỳ và giá trị tiêu thụ tại tháng hiện tại có vai trò đáng kể trong dữ liệu quốc gia theo tháng mà tác giả sử dụng.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Mười đặc trưng đứng đầu theo bảng xếp hạng Ensemble Filter của tác giả.}
+\label{tab:authors-ensemble-top10}
+\begin{tabular}{clrr}
+\toprule
+\textbf{Final rank} & \textbf{Feature} & \textbf{Vote} & \textbf{Average importance} \\
+\midrule
+1 & CosM & 4 & 0.897 \\
+2 & EC(t) & 4 & 0.788 \\
+3 & Gas & 4 & 0.528 \\
+4 & Mn\# & 3 & 0.507 \\
+5 & SinM & 3 & 0.320 \\
+6 & P-Gas & 2 & 0.297 \\
+7 & SRnw & 3 & 0.291 \\
+8 & Coal & 3 & 0.287 \\
+9 & Temp & 3 & 0.208 \\
+10 & Pop & 2 & 0.198 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Theo bài báo, tập S1 cuối cùng gồm 10 đặc trưng và được dùng chung cho cả năm mô hình: \texttt{EC(t)}, \texttt{Coal}, \texttt{Gas}, \texttt{SRnw}, \texttt{Temp}, \texttt{Pop}, \texttt{P-Gas}, \texttt{SinM}, \texttt{CosM} và \texttt{Mn\#}. Các phương pháp cơ sở không hoàn toàn đồng thuận về thứ hạng; ví dụ \texttt{EC(t)} đạt điểm cao nhất ở mRMR và F-test, trong khi vai trò của Energy intensity thay đổi đáng kể giữa RF và các phương pháp còn lại. Đây là động cơ của bước tổng hợp: khai thác tính bổ trợ thay vì phụ thuộc hoàn toàn vào một bộ xếp hạng.
+
+\subsection{Wrapper S2 và Hybrid S1S2}
+
+Khác với S1 dùng chung một tập đặc trưng, S2 thực hiện tìm kiếm theo từng estimator nên các tập được chọn có thể khác nhau. Table 6 cho thấy số đặc trưng của S2 lần lượt là 8 với LASSO, 6 với SVR-Linear, 7 với SVR-RBF, 8 với GPR và 6 với LSBoost; trung bình 7 đặc trưng. Bài báo nêu các biến \texttt{Mn\#}, \texttt{CosM}, \texttt{P-El} và \texttt{GDP} thường xuyên được lựa chọn, còn nhiều đặc trưng khác được ít nhất một mô hình chọn.
+
+Với S1S2, Wrapper hoạt động sau bước lọc S1. Số đặc trưng cuối lần lượt là 4, 4, 4, 4 và 3 cho năm mô hình, trung bình 3.8. Bài báo nhấn mạnh \texttt{Gas} và \texttt{CosM} được cả năm mô hình lựa chọn; \texttt{SRnw} và \texttt{Mn\#} cũng xuất hiện với tần suất cao. Như vậy, so với S2, S1S2 giảm số đặc trưng trung bình từ 7 xuống 3.8, tương đương giảm khoảng 45.7\% theo số lượng trung bình được công bố.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Số lượng đặc trưng theo từng mô hình trong Table 6 của bài báo gốc.}
+\label{tab:authors-feature-counts}
+\begin{tabular}{lrrrrrr}
+\toprule
+\textbf{Subset} & \textbf{LASSO} & \textbf{SVR-L} & \textbf{SVR-RBF} & \textbf{GPR} & \textbf{LSBoost} & \textbf{Average} \\
+\midrule
+S1 & 10 & 10 & 10 & 10 & 10 & 10.0 \\
+S2 & 8 & 6 & 7 & 8 & 6 & 7.0 \\
+S1S2 & 4 & 4 & 4 & 4 & 3 & 3.8 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Điểm quan trọng là S1S2 không được đề xuất với mục tiêu bảo đảm RMSE nhỏ hơn S2 trong mọi trường hợp. Vai trò của nhánh hybrid là giảm không gian đặc trưng thông qua Filter trước khi Wrapper tối ưu, tạo ra một thỏa hiệp giữa compactness và performance. Tác giả diễn giải sự hiện diện nhất quán của \texttt{Gas} và \texttt{CosM} trong S1S2 như dấu hiệu đồng thuận giữa các mô hình về các yếu tố có ích cho dự báo trong dataset gốc.
+
+\section{Kết quả dự báo và so sánh 15 cấu hình}
+
+Table 7 của bài báo báo cáo năm metric: RMSE, rRMSE, MAPE, MAE và hệ số xác định $R^2$. Bảng~\ref{tab:authors-table7} dưới đây chép lại các giá trị riêng lẻ của 15 cấu hình và các hàng Average đúng theo nội dung tác giả công bố.
+
+\begin{table}[H]
+\centering
+\scriptsize
+\caption{Kết quả dự báo trong Table 7 của Eskandari et al. (2024).}
+\label{tab:authors-table7}
+\begin{tabular}{llrrrrrr}
+\toprule
+\textbf{Subset} & \textbf{Model} & \textbf{RMSE} & \textbf{rRMSE} & \textbf{MAPE} & \textbf{MAE} & \textbf{$R^2$} & \textbf{$n_f$} \\
+\midrule
+\multirow{6}{*}{S1} & LASSO & 1.5774 & 10.4614 & 8.2645 & 1.2061 & 0.8136 & 10 \\
+ & SVR-Linear & 1.6398 & 10.8755 & 8.5298 & 1.2599 & 0.8219 & 10 \\
+ & SVR-RBF & 1.6048 & 10.6434 & 8.1880 & 1.1031 & 0.7204 & 10 \\
+ & GPR & 1.5540 & 10.3060 & 7.9540 & 1.0683 & 0.7201 & 10 \\
+ & LSBoost & 1.6237 & 10.7683 & 8.4587 & 1.1403 & 0.7511 & 10 \\
+ & \textit{Average (paper)} & \textit{1.4896} & \textit{9.8788} & \textit{7.7809} & \textit{1.0775} & \textit{0.7725} & \textit{10} \\
+\midrule
+\multirow{6}{*}{S2} & LASSO & 1.0439 & 6.9234 & 5.8780 & 0.8270 & 0.8436 & 8 \\
+ & SVR-Linear & 1.0328 & 6.8493 & 5.7961 & 0.8099 & 0.8481 & 6 \\
+ & SVR-RBF & \textbf{0.9051} & \textbf{6.0024} & \textbf{4.7836} & \textbf{0.6740} & \textbf{0.8870} & 7 \\
+ & GPR & 1.0075 & 6.6820 & 5.5061 & 0.7686 & 0.8620 & 8 \\
+ & LSBoost & 1.2810 & 8.4956 & 6.8566 & 0.9182 & 0.8354 & 6 \\
+ & \textit{Average (paper)} & \textit{1.0534} & \textit{6.9860} & \textit{5.7336} & \textit{0.7939} & \textit{0.8554} & \textit{7} \\
+\midrule
+\multirow{6}{*}{S1S2} & LASSO & 1.1079 & 7.3480 & 6.2008 & 0.8896 & 0.8864 & 4 \\
+ & SVR-Linear & 1.0014 & 6.6411 & 5.3864 & 0.7878 & 0.8810 & 4 \\
+ & SVR-RBF & 0.9706 & 6.4370 & 5.0280 & 0.7376 & 0.8664 & 4 \\
+ & GPR & 0.9312 & 6.1755 & 5.3049 & 0.7579 & 0.8776 & 4 \\
+ & LSBoost & 1.3038 & 8.6468 & 6.9009 & 0.9402 & 0.8130 & 3 \\
+ & \textit{Average (paper)} & \textit{1.0630} & \textit{7.0497} & \textit{5.7642} & \textit{0.8226} & \textit{0.8649} & \textit{3.8} \\
+\bottomrule
+\end{tabular}
+\vspace{2mm}
+\parbox{0.96\textwidth}{\footnotesize Nguồn: Table 7, Eskandari et al. (2024) [1]. $n_f$ là số đặc trưng được chọn. Các hàng Average được giữ nguyên theo bài báo, không tự thay thế bằng phép tính lại.}
+\end{table}
+
+\subsection{Cấu hình tốt nhất và so sánh giữa ba nhánh}
+
+Theo Table 7 và phần thảo luận của tác giả, SVR-RBF kết hợp S2 là cấu hình tốt nhất trong 15 cấu hình: RMSE = 0.9051; rRMSE = 6.0024; MAPE = 4.7836; MAE = 0.6740; $R^2=0.8870$. Đây là cấu hình có sai số thấp nhất và $R^2$ cao nhất trong toàn bộ các dòng mô hình riêng lẻ của bảng. Tác giả sử dụng kết quả này để minh họa quá trình huấn luyện và kiểm tra trong Fig. 9.
+
+Ở mức trung bình do tác giả công bố, S2 đạt RMSE 1.0534, trong khi S1S2 đạt 1.0630. Chênh lệch RMSE giữa hai nhánh khoảng 0.91\% so với S2, trong khi số đặc trưng trung bình giảm từ 7 xuống 3.8. MAE trung bình được công bố tăng từ 0.7939 lên 0.8226; ngược lại, $R^2$ trung bình của S1S2 là 0.8649, cao hơn 0.8554 của S2. Do đó, kết luận hợp lý không phải S1S2 luôn vượt S2 về độ chính xác, mà là S1S2 tạo ra một tập gọn hơn với các metric trung bình vẫn ở gần mức S2 trên dữ liệu gốc.
+
+S1 có 10 đặc trưng chung nhưng các metric trung bình được in trong Table 7 thấp hơn S2 ở phần lớn tiêu chí. Như vậy, trên dataset và thiết lập của tác giả, Wrapper S2 có ưu thế về độ chính xác, còn Hybrid S1S2 thể hiện trade-off giữa hiệu năng và độ gọn. Đây là kết luận theo các kết quả được công bố trong bài báo, không phải quy luật bảo đảm cho mọi dataset.
+
+\subsection{Kiểm tra nhất quán hàng Average của S1}
+
+Khi đối chiếu số liệu trong Table 7, hàng Average của S1 có sai khác số học với trung bình tính trực tiếp từ năm dòng LASSO, SVR-Linear, SVR-RBF, GPR và LSBoost. Bảng~\ref{tab:authors-s1-average-audit} ghi lại phép kiểm tra này. Báo cáo giữ nguyên hàng Average như bài báo công bố ở Bảng~\ref{tab:authors-table7}; hàng tính lại chỉ đóng vai trò kiểm toán minh bạch, không thay thế kết quả nguồn.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Đối chiếu hàng Average của S1 trong Table 7.}
+\label{tab:authors-s1-average-audit}
+\begin{tabular}{lrr}
+\toprule
+\textbf{Metric} & \textbf{Average in paper} & \textbf{Tính lại từ 5 dòng mô hình} \\
+\midrule
+RMSE & 1.4896 & 1.59994 \\
+rRMSE & 9.8788 & 10.61092 \\
+MAPE & 7.7809 & 8.27900 \\
+MAE & 1.0775 & 1.15554 \\
+$R^2$ & 0.7725 & 0.76542 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Sự không khớp này cần được nêu rõ khi trích dẫn kết quả tổng hợp. Vì vậy, khi mô tả thứ hạng các mô hình, chương ưu tiên so sánh các dòng cấu hình riêng lẻ và chỉ sử dụng hàng Average với nhãn ``theo bài báo công bố''. Không có đủ thông tin trong bài báo để xác định nguyên nhân của sai khác số học này.
+
+\section{Phân tích SHAP của tác giả}
+
+Bài báo thực hiện SHAP cho các mô hình SVR-RBF và GPR trên ba tập S1, S2 và S1S2, tương ứng Fig. 11--13. Các hình bao gồm SHAP summary plot và biểu đồ Mean absolute SHAP, cho phép xem xét cả phân bố chiều tác động lẫn mức đóng góp trung bình của đặc trưng. Những giá trị Mean absolute SHAP đọc được từ nhãn trên biểu đồ được tổng hợp ở Bảng~\ref{tab:authors-shap-top}.
+
+\begin{table}[H]
+\centering
+\scriptsize
+\caption{Một số đặc trưng có Mean absolute SHAP cao nhất trong các hình SHAP của bài báo.}
+\label{tab:authors-shap-top}
+\begin{tabular}{llp{6.2cm}p{2.5cm}}
+\toprule
+\textbf{Subset} & \textbf{Model} & \textbf{Các đặc trưng có mức đóng góp cao} & \textbf{Mean $|$SHAP$|$} \\
+\midrule
+S1 & SVR-RBF & CosM; Natural gas; RP-Gas; Month\# & 0.084; 0.036; 0.027; 0.019 \\
+S1 & GPR & CosM; RP-Gas; Temperature; Month\# & 0.127; 0.060; 0.046; 0.037 \\
+S2 & SVR-RBF & CosM; RP-Electricity; Temperature; Bioenergy \& waste & 0.116; 0.046; 0.034; 0.027 \\
+S2 & GPR & Month\#; Month Sin; RP-Gas; Energy intensity & 0.126; 0.048; 0.046; 0.043 \\
+S1S2 & SVR-RBF & CosM; Renewable-share; Natural gas; Month\# & 0.107; 0.072; 0.051; 0.027 \\
+S1S2 & GPR & CosM; Population; Natural gas; Month Sin & 0.124; 0.068; 0.036; 0.014 \\
+\bottomrule
+\end{tabular}
+\par\vspace{1mm}
+\parbox{0.96\textwidth}{\footnotesize Các giá trị được đọc từ nhãn trên Fig. 11--13 của bài báo [1] và làm tròn theo mức hiển thị trên biểu đồ. Đây là Mean absolute SHAP, không phải hệ số hồi quy hay tác động nhân quả.}
+\end{table}
+
+Một kết quả nổi bật là \texttt{CosM} thường đứng đầu trong S1 với cả SVR-RBF và GPR, cũng như trong S1S2. Với S2, SVR-RBF vẫn có \texttt{CosM} là đặc trưng đứng đầu, trong khi GPR đặt \texttt{Month\#} ở vị trí cao nhất. Điều này cho thấy các biến mã hóa tháng có vai trò lớn trong dự báo tổng tiêu thụ năng lượng theo tháng của Vương quốc Anh. Tác giả đồng thời quan sát các biến giá năng lượng, nhiệt độ, tỷ trọng năng lượng tái tạo và nguồn nhiên liệu có thứ hạng khác nhau theo estimator và feature subset.
+
+SHAP summary plot còn cho thấy chiều tác động không giống nhau giữa các biến. Bài báo diễn giải rằng giá trị cao của một số biến như Renewable-share, Bioenergy \& waste, Temperature, RP-Electricity và RP-Gas có xu hướng tạo đóng góp âm đối với dự báo EC trong những cấu hình được khảo sát; trong khi Natural gas, Month Cos và Month\# có xu hướng đóng góp dương. Tác giả cũng cảnh báo multicollinearity có thể làm thay đổi cách phân bổ contribution giữa các biến tương quan. Vì vậy, SHAP ở đây hỗ trợ diễn giải dự báo của mô hình, không chứng minh quan hệ nhân quả giữa đặc trưng và tiêu thụ năng lượng.
+
+Các hình gốc của SHAP được giữ nguyên tại Phụ lục D: Fig. 11 (S1), Fig. 12 (S2) và Fig. 13 (S1S2). Báo cáo không dựng lại các điểm SHAP từ dữ liệu KAG để thay thế cho kết quả của tác giả.
+
+\section{Đánh giá ưu thế của framework và đối chiếu với phương pháp đơn lẻ}
+
+\subsection{Vì sao thiết kế tích hợp có lợi thế về phương pháp?}
+
+Đóng góp chính của framework không nằm ở việc đề xuất một mô hình dự báo hoàn toàn mới, mà ở cách tổ chức lựa chọn đặc trưng và đánh giá mô hình trong cùng một quy trình. So với một Filter đơn lẻ, Ensemble Filter giảm phụ thuộc vào một tiêu chí xếp hạng bằng cách tổng hợp mRMR, RF, F-test và Relief. Sự kết hợp này có ý nghĩa vì bốn phương pháp nhìn đặc trưng từ các góc độ khác nhau: relevance--redundancy, importance của mô hình cây, kiểm định đơn biến và lân cận cục bộ.
+
+Wrapper S2 có ưu thế khác: nó đánh giá tập đặc trưng thông qua estimator cụ thể. Do đó, nghiệm được chọn gắn trực tiếp với lỗi của mô hình dự báo đang xét, thay vì chỉ dựa vào đặc tính thống kê chung của dữ liệu. Nhược điểm là chi phí tìm kiếm lớn vì nhiều tập con phải được đánh giá bằng mô hình học máy. SIFE được dùng để điều hướng tìm kiếm tiến hóa trong không gian tập con, với crossover dựa trên tập hợp và fuzzy granulation nhằm duy trì đa dạng quần thể.
+
+Hybrid S1S2 sử dụng đầu ra S1 làm không gian ứng viên cho Wrapper. So với việc tìm kiếm trên toàn bộ đặc trưng, không gian được thu hẹp ngay từ đầu; vì thế, thiết kế này hướng tới giảm chi phí Wrapper và tạo tập biến ngắn hơn. Kết quả của tác giả cho thấy S1S2 giữ trung bình 3.8 biến, ít hơn 7 biến của S2, trong khi RMSE trung bình công bố chỉ tăng khoảng 0.91\%. Đây là bằng chứng định lượng cụ thể cho trade-off compactness--accuracy trong dataset gốc.
+
+\subsection{Framework có tốt hơn mọi phương pháp khác không?}
+
+Không nên diễn giải kết quả theo hướng framework tích hợp luôn tốt hơn mọi phương pháp. Trong ba nhánh do tác giả so sánh, S2 đạt kết quả dự báo tốt nhất theo Table 7, cụ thể là SVR-RBF + S2. S1S2 có ưu điểm rõ hơn về số lượng đặc trưng, không phải về mọi metric. S1 giúp tạo tập đặc trưng đồng nhất cho tất cả estimator, thuận lợi cho so sánh và triển khai, nhưng không đạt độ chính xác trung bình cao nhất trong các hàng Average được công bố.
+
+Table 1 của bài báo tổng hợp những nghiên cứu trước về dự báo năng lượng sử dụng CNN, ANN, LSTM, SVM, GPR, Random Forest, ARIMA, Grey Models và các phương pháp khác. Đây là so sánh tổng quan phạm vi nghiên cứu, dataset, tần suất, mô hình và chiến lược Feature Selection; không phải một benchmark định lượng được chạy lại trên cùng bộ dữ liệu. Vì vậy, bài báo cung cấp bằng chứng mạnh nhất cho ưu thế của framework thông qua so sánh nội bộ 15 cấu hình, chứ không chứng minh bằng một bảng điểm chung rằng framework vượt tất cả mô hình trong các công trình trước.
+
+\subsection{Ý nghĩa đối với project trên KAG}
+
+Kết quả của tác giả là mốc tham chiếu về cấu trúc và trade-off của phương pháp, không phải một baseline số học trực tiếp cho dataset KAG. Trên dữ liệu KAG, S1-LSBoost có RMSE thấp nhất trong 20 cấu hình của notebook; S2 và S1S2 lại chọn duy nhất \texttt{Appliances\_t}. Khác biệt này cần được đọc trong bối cảnh KAG có tần suất 10 phút, target là mức tiêu thụ của thiết bị gia dụng sau 10 phút và có biến lag hiện tại mang thông tin tự tương quan mạnh. Ngược lại, bài báo dự báo tổng tiêu thụ năng lượng quốc gia theo tháng với biến kinh tế, nhân khẩu học và năng lượng.
+
+Do đó, kết quả gốc giúp giải thích mục tiêu và lý do thiết kế framework; kết quả KAG cho thấy hành vi của framework khi chuyển sang bài toán ngắn hạn ở cấp hộ gia đình. Việc S2/S1S2 chọn biến lag không đủ để kết luận SIFE kém hơn bản gốc, cũng không đủ để nói mô hình KAG tốt hơn hay kém hơn các trị số trong Table 7. Đây là khác biệt về bài toán và dữ liệu cần được giữ rõ trong mọi so sánh.
+
+\section{Kết luận chương 3}
+
+Chương này đã trình bày các kết quả do Eskandari et al. công bố trên dataset UK monthly. Tác giả kết hợp ba nhánh S1, S2 và S1S2 với năm mô hình; S2-SVR-RBF đạt kết quả tốt nhất trên Table 7, còn S1S2 giảm số đặc trưng trung bình từ 7 xuống 3.8 với mức thay đổi RMSE trung bình nhỏ theo số liệu Average được công bố. Phân tích SHAP cho thấy các biến chu kỳ tháng, đặc biệt \texttt{CosM}, có đóng góp lớn trong nhiều cấu hình.
+
+Chương cũng chỉ ra một sai khác số học ở hàng Average của S1 trong Table 7 và giữ nguyên số liệu tác giả công bố kèm ghi chú kiểm toán. Những kết quả gốc này tạo mốc tham chiếu cho việc đọc Chương 4, nhưng không thể dùng để xếp hạng trực tiếp các mô hình trên KAG vì hai nghiên cứu khác nhau về dataset, frequency, target và implementation. Kết luận chung của báo cáo vì vậy dựa trên hai nguồn bằng chứng độc lập: bài báo gốc để hiểu framework và kết quả công bố; notebook ABC(3) để đánh giá cách framework được tái triển khai trên KAG.

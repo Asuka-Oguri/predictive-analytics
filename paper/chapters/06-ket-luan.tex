@@ -1,0 +1,42 @@
+\chapter{Kết luận và hướng phát triển}\label{chap:11}
+
+\section{Tổng kết mục tiêu và nội dung đã thực hiện}\label{tux1ed5ng-kux1ebft-mux1ee5c-tiuxeau-vuxe0-nux1ed9i-dung-ux111uxe3-thux1ef1c-hiux1ec7n}
+
+Báo cáo đã hoàn thành việc nghiên cứu framework Feature Selection--Machine Learning--SHAP của Eskandari et al. (2024) và triển khai trên bộ Appliances Energy Prediction. Quy trình đã kiểm tra dữ liệu, tạo target one-step-ahead, split theo thời gian, chuẩn hóa train-only, thực hiện bốn base selectors, ba feature selection tracks, Bayesian Optimization, năm estimators, baseline comparison và SHAP.
+
+20/20 cấu hình forecasting có trạng thái `ok`; kết quả baseline được lưu riêng. Hai thí nghiệm mở rộng có đầu ra đã xác minh: E1 có bảng kết quả, predictions, biểu đồ và mô hình NoLag; E2 có bảng tất cả lần lặp, bảng tổng hợp, config JSON và biểu đồ. Bộ kết quả có thể truy xuất qua notebook cells và thư mục `outputs/paper/`.
+
+\section{Những kết luận chính}\label{nhux1eefng-kux1ebft-luux1eadn-chuxednh}
+
+Thứ nhất, S1-LSBoost đạt RMSE thấp nhất trong 20 cấu hình (61,224 Wh), nhưng mức cải thiện so với S0-LSBoost là nhỏ. Khi xét trung bình qua năm model, S1 có lợi thế RMSE rõ hơn so với S0.
+
+Thứ hai, S2 và S1S2 cùng chọn `Appliances\_t` cho cả năm models. E1 cho thấy bỏ biến lag khỏi S1 subset làm RMSE tăng 40,41\%; điều này cho thấy thông tin autoregressive rất quan trọng ở horizon 10 phút.
+
+Thứ ba, E2 cho thấy S1-LSBoost nhạy với Gaussian noise: RMSE tăng 20,67\% ở σ=0,05 và hơn gấp đôi ở σ=0,20. R² âm ở noise 10\% và 20\% thể hiện suy giảm rõ rệt theo điều kiện stress test.
+
+Thứ tư, framework gốc có ưu thế ở thiết kế nhiều tầng và khả năng trade-off accuracy--feature count--interpretability. Tuy nhiên, kết quả KAG không tái hiện thứ hạng S2-SVR-RBF của bài báo gốc. Đây là sai khác cần được giải thích bằng domain, sampling, model mapping và port SIFE, không nên quy đơn giản là thuật toán gốc tốt hơn hoặc kém hơn.
+
+\section{Đánh giá mức độ hoàn thành và giới hạn}\label{ux111uxe1nh-giuxe1-mux1ee9c-ux111ux1ed9-houxe0n-thuxe0nh-vuxe0-giux1edbi-hux1ea1n}
+
+Mục tiêu method reproduction trên dataset khác đã được thực hiện trong phạm vi notebook hiện tại. Chưa đạt mức replication nguyên bản do không dùng dataset UK monthly, không có code MATLAB, có các approximation về Relief/\allowbreak SIFE/\allowbreak GPR/\allowbreak LSBoost/\allowbreak BO/\allowbreak SHAP và có resource caps. Chưa chạy multiple seeds, Full No-Lag rerun, feature selection stability bootstrap, paired significance tests hoặc kiểm định drift theo các giai đoạn dài. Những phần này cần được xem là giới hạn còn lại, không phải kết quả thất bại hoặc kết quả đã thực hiện.
+
+\section{Định hướng nghiên cứu và phát triển tiếp theo}\label{ux111ux1ecbnh-hux1b0ux1edbng-nghiuxean-cux1ee9u-vuxe0-phuxe1t-triux1ec3n-tiux1ebfp-theo}
+
+\begin{itemize}
+\item
+  Thực hiện Full No-Lag: loại `Appliances\_t` trước khi feature selection, chạy lại S1/S2/S1S2 và các models để kiểm tra khả năng tìm biến thay thế, đồng thời giữ nguyên split và ngân sách tuning.
+\item
+  Mở rộng dữ liệu theo thời gian hoặc sang nhiều nhà/tòa nhà, áp dụng rolling-origin evaluation hoặc blocked cross-validation để đánh giá khả năng khái quát hóa và độ ổn định qua mùa.
+\item
+  Kiểm tra độ nhạy của SIFE theo w1/w2, population, max\_iter và sampling cap; so sánh với baseline wrapper như sequential feature selection hoặc exhaustive search trên tập nhỏ để đánh giá chất lượng nghiệm, nhưng phải dùng validation riêng và không xem holdout test trong vòng tối ưu.
+\item
+  Làm repeated seeds và bootstrap theo block cho performance metrics; báo cáo mean, standard deviation hoặc confidence interval. Với Pearson, xem xét effective sample size hoặc phương pháp phù hợp tự tương quan.
+\item
+  Cải thiện SHAP bằng ngân sách permutation cao hơn, nhiều mẫu giải thích, phân tích grouped/correlated features và kiểm tra local explanation trên các giai đoạn tiêu thụ đặc biệt.
+\item
+  Chuẩn hóa ánh xạ model để tiến gần hơn MATLAB: LSBoost max splits, GPR subset-of-regressors/Pure Quadratic và SIFE fuzzy granulation nguyên bản; nếu không có source gốc thì cần ghi rõ từng approximation.
+\end{itemize}
+
+\section{Kết luận chung}\label{kux1ebft-luux1eadn-chung}
+
+Framework của Eskandari et al. (2024) cung cấp một cách tổ chức nghiên cứu hữu ích: kết hợp nhiều cách nhìn Feature Selection, đánh giá wrapper theo estimator, đưa ra nhánh hybrid để giảm không gian tìm kiếm và dùng SHAP để tăng tính minh bạch. Việc triển khai trên KAG cho thấy framework có thể vận dụng trong bài toán tiêu thụ điện 10 phút, nhưng kết quả nhấn mạnh vai trò áp đảo của biến lag và độ nhạy với nhiễu. Giá trị chính của project là triển khai được một pipeline có kiểm soát, ghi rõ sai khác với bài báo, lưu được kết quả có thể truy vết và nhận diện các giới hạn cần kiểm tra tiếp. Báo cáo không khẳng định tái lập hoàn toàn các kết quả của bài báo gốc.

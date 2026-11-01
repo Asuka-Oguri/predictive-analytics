@@ -1,0 +1,309 @@
+\chapter{Dữ liệu, công cụ và kịch bản thực nghiệm}\label{chap:9}
+
+\section{Tổng quan tổ chức thực nghiệm}\label{tux1ed5ng-quan-tux1ed5-chux1ee9c-thux1ef1c-nghiux1ec7m}
+
+Thực nghiệm được tổ chức thành bốn giai đoạn: (A) kiểm tra dữ liệu, xây dựng supervised dataset và Feature Selection; (B) phân tích khám phá, thống kê và tương quan; (C) Bayesian Optimization, forecasting, baselines và SHAP; (D) hai mở rộng đã thực hiện là Lag Feature Ablation và Gaussian Noise Robustness. Cả bốn giai đoạn sử dụng kết quả của experiment mode `paper`, random seed 42 và thư mục đầu ra `outputs/paper/` cùng `extended\_experiments/`.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}@{}}
+\caption{Tổng quan các giai đoạn thực nghiệm.}\label{tab:03-du-lieu-thuc-nghiem-0-t-ng-quan-c-c-giai-o-n-th-c-nghi-m}\\
+\toprule\noalign{}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Giai đoạn}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Thao tác}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Đầu ra chính}
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Giai đoạn}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Thao tác}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Đầu ra chính}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+A & Kiểm tra data, outlier, shift target, split/scale, base FS, S1/S2/S1S2. & supervised data, feature scores, selected subsets, SIFE audit logs. \\
+B & Thống kê mô tả, phân phối, autocorrelation, Pearson correlation. & descriptive statistics, heatmap, time-series plots. \\
+C & Bayesian Optimization, fit 20 configurations, 4 baselines, metrics, SHAP. & paper\_models\_results.csv, baseline\_results.csv, comparison, SHAP outputs. \\
+D & Loại Appliances\_t khỏi S1-LSBoost và thêm Gaussian noise vào test inputs. & E1 result/predictions/model; E2 raw runs/summary/config/figure. \\
+\end{longtable}
+
+\section{Dataset và nguồn dữ liệu}\label{dataset-vuxe0-nguux1ed3n-dux1eef-liux1ec7u}
+
+Dataset Appliances Energy Prediction được phát hành trên UCI Machine Learning Repository, có 19.735 instances và các biến cảm biến, chiếu sáng, thời tiết cùng target Appliances. Các quan sát được ghi nhận mỗi 10 phút trong khoảng 4,5 tháng; hệ thống đo gồm cảm biến nhiệt độ/độ ẩm trong nhà và dữ liệu thời tiết từ Chievres Airport, Bỉ {[}2,3{]}. Dataset gốc có cột date và 28 biến mô tả; notebook sử dụng file CSV 29 cột bao gồm timestamp.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.5000}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.5000}}@{}}
+\caption{Thuộc tính và đặc điểm dataset.}\label{tab:03-du-lieu-thuc-nghiem-1-thu-c-t-nh-v-c-i-m-dataset}\\
+\toprule\noalign{}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Thuộc tính}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Giá trị xác minh trong notebook}
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Thuộc tính}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Giá trị xác minh trong notebook}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Kích thước raw & 19.735 hàng × 29 cột \\
+Khoảng thời gian & 2016-01-11 17:00 đến 2016-05-27 18:00 \\
+Tần suất & 10 phút; 19.734/19.734 khoảng cách đều \\
+Missing cells & 0 \\
+Duplicate rows & 0 \\
+Duplicate timestamps & 0 \\
+Target & Appliances (Wh) \\
+rv1 và rv2 & Giống nhau tuyệt đối; notebook loại rv2 \\
+Sau loại cột trùng & 19.735 hàng × 28 cột \\
+\end{longtable}
+
+Một điểm cần lưu ý là bộ dữ liệu đại diện cho một ngôi nhà, không phải tổng tiêu thụ của nhiều tòa nhà hay dữ liệu quốc gia. Vì vậy kết quả chỉ mô tả bài toán tại hộ gia đình được quan sát trong khoảng thời gian thu thập; không suy rộng trực tiếp thành xu hướng năng lượng cấp vùng hoặc quốc gia.
+
+\subsection{Nhóm biến}\label{nhuxf3m-biux1ebfn}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}@{}}
+\caption{Nhóm biến trong dataset KAG.}\label{tab:03-du-lieu-thuc-nghiem-2-nh-m-bi-n-trong-dataset-kag}\\
+\toprule\noalign{}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Nhóm biến}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Ví dụ}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Ý nghĩa}
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Nhóm biến}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Ví dụ}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Ý nghĩa}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Target/lag & Appliances; Appliances\_t; Appliances\_t\_plus\_1 & Điện năng thiết bị tại t và target tại t+1, đơn vị Wh. \\
+Chiếu sáng & lights & Mức tiêu thụ điện của hệ thống đèn, Wh. \\
+Cảm biến trong nhà & T1--T9; RH\_1--RH\_9 & Nhiệt độ và độ ẩm ở các khu vực. \\
+Ngoài trời/thời tiết & T\_out, T6, RH\_out, RH\_6, Press\_mm\_hg, Windspeed, Visibility, Tdewpoint & Điều kiện ngoài trời và trạm thời tiết. \\
+Biến thời gian & Mon\#, SinM, CosM, Hour\#, SinH, CosH, DOW\#, SinDOW, CosDOW & Biến ordinal và cyclic encoding theo tháng, giờ và ngày trong tuần. \\
+Random variables & rv1 & Biến ngẫu nhiên được giữ lại sau khi rv2 trùng tuyệt đối và bị loại. \\
+\end{longtable}
+
+\section{Kiểm tra chất lượng và tiền xử lý}\label{kiux1ec3m-tra-chux1ea5t-lux1b0ux1ee3ng-vuxe0-tiux1ec1n-xux1eed-luxfd}
+
+Notebook kiểm tra schema, data types, missing values, duplicate rows, duplicate timestamps, thứ tự thời gian và sampling interval. Kết quả cho thấy dữ liệu tăng đơn điệu theo thời gian, không có giá trị thiếu, không có hàng/timestamp trùng và tất cả 19.734 khoảng thời gian giữa hai bản ghi đều bằng 10 phút.
+
+`rv1` và `rv2` giống hệt nhau trên tất cả quan sát, do đó notebook loại `rv2` để tránh đưa hai cột trùng tuyệt đối vào mô hình. Đây là kiểm tra điều kiện cụ thể của file đang dùng; không khẳng định mọi bản sao dataset khác đều có đặc điểm tương tự.
+
+Outlier Analysis sử dụng quy tắc IQR với hệ số 1,5 cho biến Appliances. Q1=50 Wh, Q3=100 Wh, IQR=50 Wh, cận dưới -25 Wh và cận trên 175 Wh. Có 2.138/19.735 giá trị (10,8335\%) vượt cận IQR. Tuy nhiên `REMOVE\_\allowbreak OUTLIERS=False`, do đó không quan sát nào bị xóa. Giá trị lớn không tự động được xem là lỗi bởi có thể phản ánh thời điểm thiết bị hoạt động mạnh; việc giữ lại còn duy trì chuỗi 10 phút liên tục.
+
+\section{Tạo supervised target và temporal features}\label{tux1ea1o-supervised-target-vuxe0-temporal-features}
+
+Notebook tạo `Appliances\_t` từ tiêu thụ hiện tại và `Appliances\_t\_plus\_1` bằng dịch target một bản ghi về phía trước. Vì mọi khoảng cách đều 10 phút, target là 10 phút tiếp theo. Sau phép shift, còn 19.734 supervised rows và 36 candidate features. Các tháng được mã hóa bằng `Mon\#`, `SinM`, `CosM`; các biến giờ và thứ được bổ sung để thể hiện chu kỳ intraday và weekly. Đây là mở rộng tương thích với dữ liệu tần suất 10 phút, không có trong mô tả monthly của bài báo gốc.
+
+\section{Chia train/test và chuẩn hóa}\label{chia-traintest-vuxe0-chuux1ea9n-huxf3a}
+
+Dữ liệu được chia theo thứ tự thời gian, không shuffle. 80\% đầu (15.787 rows) dùng train và hyperparameter tuning; 20\% cuối (3.947 rows) là holdout test. Train kéo dài từ 2016-01-11 17:00 đến 2016-04-30 08:00; test từ 2016-04-30 08:10 đến 2016-05-27 17:50. MinMaxScaler chỉ fit trên train, sau đó transform test. Metric được tính trên thang đơn vị gốc sau inverse transform target scaler.
+
+\section{Môi trường và ngân sách tính toán}\label{muxf4i-trux1b0ux1eddng-vuxe0-nguxe2n-suxe1ch-tuxednh-touxe1n}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.5000}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.5000}}@{}}
+\caption{Cấu hình môi trường và ngân sách tính toán.}\label{tab:03-du-lieu-thuc-nghiem-3-c-u-h-nh-m-i-tr-ng-v-ng-n-s-ch-t-nh-to-n}\\
+\toprule\noalign{}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Thành phần}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Thông số ghi nhận}
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Thành phần}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Thông số ghi nhận}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Python & 3.11.9 \\
+pandas & 2.2.3 \\
+NumPy & 1.26.4 \\
+scikit-learn & 1.5.2 \\
+SHAP & 0.46.0 \\
+Experiment revision/mode & ABC-1.2 / paper \\
+Random seed & 42 \\
+Train/test & 80/20 chronological \\
+SIFE & population 120; max\_iter 60; pc 0.6; pm 0.5; w1 0.8; w2 0.2 \\
+SIFE eval cap & 1.500 rows, lấy mẫu trải đều theo thời gian \\
+Bayesian Optimization & 20 iterations/model; TimeSeriesSplit 3 folds; max 2.500 train rows \\
+SVR final fit cap & 2.500 rows, lấy mẫu trải đều theo thời gian \\
+GPR cap & 1.800 rows trong mode paper \\
+SHAP & 40 background rows; 30 explained rows; Permutation\allowbreak Explainer \\
+\end{longtable}
+
+Các giới hạn hàng mẫu là điều chỉnh tính toán của notebook trên chuỗi KAG gần 20 nghìn quan sát, không phải thông số của bài báo gốc. Chúng làm giảm chi phí của wrapper, SVR và GPR nhưng cũng làm giảm mức tương đương với thực nghiệm nguyên bản.
+
+\section{Ánh xạ phương pháp và mô hình}\label{uxe1nh-xux1ea1-phux1b0ux1a1ng-phuxe1p-vuxe0-muxf4-huxecnh}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}@{}}
+\caption{Ánh xạ phương pháp và mô hình.}\label{tab:03-du-lieu-thuc-nghiem-4-nh-x-ph-ng-ph-p-v-m-h-nh}\\
+\toprule\noalign{}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Thành phần}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Bài báo}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Notebook ABC-1.2}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Mức tương đương}
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Thành phần}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Bài báo}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Notebook ABC-1.2}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Mức tương đương}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+mRMR & Mutual Information relevance/redundancy. & mutual\_\allowbreak info\_\allowbreak regression; greedy relevance minus average redundancy; max 5.000 rows. & Cùng ý tưởng; implementation Python. \\
+RF & Random Forest importance. & RandomForest\allowbreak Regressor 250 trees, max\_features .8, leaf 2. & Cùng họ phương pháp; cấu hình Python. \\
+Relief & Relief FS trong framework. & RReliefF regression; 4.000 updates, k=10. & Adaptation cho target liên tục. \\
+F-test & Univariate F-test FS. & sklearn f\_regression. & Ánh xạ trực tiếp về ý tưởng. \\
+Ensemble & Iterative pruning; weighted average; votes ≥2. & Top-10 each, equal-weight mean normalized scores, votes ≥2. & Gần về nguyên tắc; khác chi tiết ranking/elimination. \\
+SIFE & Fuzzy granular evolutionary search. & Python port; Jaccard proxy; set-based crossover/mutation. & Không phải mã MATLAB gốc. \\
+GPR & Subset of regressors; pure quadratic; sigma .046. & Constant×\allowbreak RBF+\allowbreak WhiteKernel; cap 1.800 rows. & Approximation khác kernel/approximation. \\
+LSBoost & 12 splits; 8 cycles; lr .28. & GradientBoosting\allowbreak Regressor; max\_leaf\_nodes 13 reference, tuning search later. & Mapping gần đúng, không cùng MATLAB. \\
+Bayesian Optimization & MATLAB R2022b Stats/ML toolbox. & BayesSearchCV + TimeSeriesSplit; 20 iterations. & Khác software/search implementation. \\
+SHAP & Shapley analysis, time series/heatmap. & Permutation\allowbreak Explainer, limited background and explain rows. & Approximate and small evaluation budget. \\
+\end{longtable}
+
+\section{Các kịch bản thực nghiệm}\label{cuxe1c-kux1ecbch-bux1ea3n-thux1ef1c-nghiux1ec7m}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}@{}}
+\caption{Các kịch bản thực nghiệm.}\label{tab:03-du-lieu-thuc-nghiem-5-c-c-k-ch-b-n-th-c-nghi-m}\\
+\toprule\noalign{}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Mã}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Kịch bản}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Thiết lập đã chạy}
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Mã}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Kịch bản}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Thiết lập đã chạy}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+P0 & So sánh feature subsets & S0, S1, S2, S1S2 × năm models = 20 configurations. \\
+P1 & Baseline comparison & Persistence, Ridge, RandomForest, HistGradient\allowbreak Boosting trên cùng holdout test. \\
+P2 & SHAP & Mô hình best-RMSE trong từng S1, S2, S1S2. \\
+E1 & Lag Feature Ablation & S1-LSBoost 10 features so với chính subset bỏ Appliances\_t còn 9 features; huấn luyện lại LSBoost. \\
+E2 & Gaussian Noise Robustness & S1-LSBoost; test inputs bị perturbation Gaussian tại σ=0, .05, .10, .20; 5 lần/mức. \\
+\end{longtable}
+
+\section{Metric đánh giá}\label{metric-ux111uxe1nh-giuxe1}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}@{}}
+\caption{Metric đánh giá.}\label{tab:03-du-lieu-thuc-nghiem-6-metric-nh-gi}\\
+\toprule\noalign{}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Metric}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Công thức / cách dùng}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Diễn giải}
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Metric}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Công thức / cách dùng}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Diễn giải}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+RMSE & sqrt(mean((y−ŷ)²)) & Phạt sai số lớn; metric xếp hạng chính; đơn vị Wh. \\
+MAE & mean(\textbar y−ŷ\textbar) & Sai số tuyệt đối trung bình, Wh. \\
+MAPE & mean(\textbar(y−ŷ)/y\textbar)×100 & Notebook loại y=0; số lượng bị loại được ghi cùng metric. \\
+R² & 1−Σ(y−ŷ)²/Σ(y−ȳ)² & Tỷ lệ biến thiên target được giải thích; có thể âm trên test. \\
+rRMSE\_article\_literal & sqrt(MSE / Σŷ²) & Notebook ghi theo cách đọc literal công thức Eq. (21) trong bài; không tự ý diễn giải lại. \\
+NRMSE\_mean\_pct & RMSE/\textbar mean(y)\textbar×100 & Metric bổ sung để chuẩn hóa theo mean target. \\
+sMAPE & mean(2\textbar y−ŷ\textbar/(\textbar y\textbar+\textbar ŷ\textbar))×100 & Metric bổ sung; không thay thế MAPE của bài báo. \\
+\end{longtable}
+
+Một lưu ý quan trọng là cách in công thức rRMSE trong PDF bài báo khó đọc và notebook lưu rõ `rRMSE\_article\_literal` theo biểu thức đã triển khai. Vì vậy báo cáo không dùng chỉ số này để tuyên bố tương đương với trị số rRMSE trong Table 7. `NRMSE\_mean\_pct` và `sMAPE` là các chỉ số bổ sung. MAPE không loại quan sát nào trong holdout test vì số đếm excluded-zero bằng 0.
+
+\section{Các sai khác chính so với bài báo}\label{cuxe1c-sai-khuxe1c-chuxednh-so-vux1edbi-buxe0i-buxe1o}
+
+Bài báo sử dụng dữ liệu UK national inland final energy consumption theo tháng và 18 biến gồm tổng EC, các nguồn nhiên liệu, GDP, dân số, nhiệt độ, giá năng lượng và biến thời gian. Notebook dùng KAG với 19.735 quan sát 10 phút từ một ngôi nhà ở Bỉ, gồm sensor, weather, lights, Appliances\_t và biến thời gian. Vì vậy khác nhau cả về đơn vị phân tích, số lượng/ý nghĩa biến, sampling frequency và horizon.
+
+Relief được thay bằng RReliefF để xử lý target hồi quy. Ensemble score dùng min-max normalization/relative rank và average đồng trọng số; không tái hiện toàn bộ iterative elimination chi tiết của bài báo. SIFE dùng Jaccard distance làm proxy cho fuzzy granulation, sample cap 1.500 rows và inner chronological split; không phải implementation MATLAB. GPR dùng RBF+WhiteKernel và cap 1.800 rows; LSBoost được map sang scikit-learn GradientBoosting\allowbreak Regressor. Bayesian Optimization dùng BayesSearchCV; SVR final fit cap 2.500 rows. SHAP dùng Permutation\allowbreak Explainer với 30 test rows và ngân sách 2M+1.
+
+Các baseline thông thường và hai thí nghiệm E1/E2 là phần bổ sung ngoài framework gốc. E1 chỉ loại Appliances\_t khỏi S1 subset đã chọn, không chạy lại feature selection trên toàn bộ 35 biến. E2 chỉ kiểm tra một estimator S1-LSBoost ở các mức nhiễu Gaussian, không kiểm tra độ bền vững của toàn bộ 20 cấu hình.

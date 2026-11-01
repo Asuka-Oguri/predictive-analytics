@@ -1,0 +1,265 @@
+\chapter{Bảng kết quả thực nghiệm}\label{app:results}
+\setcounter{table}{0}\renewcommand{\thetable}{PL.B.\arabic{table}}
+
+\section{Toàn bộ 20 cấu hình forecasting}\label{b.1.-touxe0n-bux1ed9-20-cux1ea5u-huxecnh-forecasting}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}@{}}
+\caption{Toàn bộ 20 cấu hình forecasting.}\label{tab:app-b-0-to-n-b-20-c-u-h-nh-forecasting}\\
+\toprule\noalign{}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Subset}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Model}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{n}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{RMSE}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{MAE}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{MAPE \%}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{R²}
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Subset}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Model}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{n}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{RMSE}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{MAE}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{MAPE \%}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{R²}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+S1 & LSBoost & 10 & 61.223997 & 26.543855 & 24.2492 & 0.547735 \\
+S0 & LSBoost & 36 & 61.274424 & 26.524782 & 24.2216 & 0.546990 \\
+S0 & LASSO & 36 & 61.280461 & 27.384938 & 25.8779 & 0.546901 \\
+S2 & LSBoost & 1 & 61.297607 & 26.693146 & 24.5056 & 0.546647 \\
+S1S2 & LSBoost & 1 & 61.297607 & 26.693146 & 24.5056 & 0.546647 \\
+S1 & LASSO & 10 & 61.320689 & 26.929178 & 24.9662 & 0.546305 \\
+S1 & GPR & 10 & 61.575189 & 27.337066 & 25.2211 & 0.542532 \\
+S1 & SVR-RBF & 10 & 61.587307 & 25.240089 & 21.4945 & 0.542352 \\
+S1S2 & GPR & 1 & 61.642860 & 26.880983 & 25.4322 & 0.541526 \\
+S2 & GPR & 1 & 61.642860 & 26.880983 & 25.4322 & 0.541526 \\
+S1S2 & LASSO & 1 & 61.889770 & 27.284338 & 26.0961 & 0.537845 \\
+S2 & LASSO & 1 & 61.889770 & 27.284338 & 26.0961 & 0.537845 \\
+S0 & SVR-RBF & 36 & 61.957310 & 25.266593 & 20.8677 & 0.536836 \\
+S0 & SVR-Linear & 36 & 62.076702 & 25.223017 & 21.2298 & 0.535049 \\
+S1 & SVR-Linear & 10 & 62.086319 & 25.074346 & 20.9799 & 0.534905 \\
+S2 & SVR-RBF & 1 & 62.138361 & 25.436815 & 21.4556 & 0.534125 \\
+S1S2 & SVR-RBF & 1 & 62.138361 & 25.436815 & 21.4556 & 0.534125 \\
+S2 & SVR-Linear & 1 & 62.793984 & 25.196022 & 20.4339 & 0.524243 \\
+S1S2 & SVR-Linear & 1 & 62.793984 & 25.196022 & 20.4339 & 0.524243 \\
+S0 & GPR & 36 & 68.969188 & 40.661501 & 45.7191 & 0.426069 \\
+\end{longtable}
+
+\section{Baseline results}\label{b.2.-baseline-results}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}@{}}
+\caption{Baseline results.}\label{tab:app-b-1-baseline-results}\\
+\toprule\noalign{}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Baseline}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{n features}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{RMSE}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{MAE}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{MAPE \%}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{R²}
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Baseline}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{n features}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{RMSE}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{MAE}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{MAPE \%}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{R²}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Persistence & 1 & 66.437640 & 26.650621 & 21.9361 & 0.467429 \\
+Ridge & 36 & 61.393249 & 26.333199 & 23.1436 & 0.545231 \\
+RandomForest & 36 & 97.809147 & 65.064723 & 72.5555 & -0.154273 \\
+HistGradient\allowbreak Boosting & 36 & 64.144688 & 33.990690 & 34.2283 & 0.503555 \\
+\end{longtable}
+
+\section{SHAP feature importance}\label{b.3.-shap-feature-importance}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}@{}}
+\caption{SHAP feature importance.}\label{tab:app-b-2-shap-feature-importance}\\
+\toprule\noalign{}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Track}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Model}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Feature}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Mean \textbar SHAP\textbar{}}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Explained samples}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Background}
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Track}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Model}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Feature}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Mean \textbar SHAP\textbar{}}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Explained samples}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Background}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+S1 & LSBoost & Appliances\_t & 48.267422 & 30 & 40 \\
+S1 & LSBoost & SinH & 1.087708 & 30 & 40 \\
+S1 & LSBoost & CosH & 0.933166 & 30 & 40 \\
+S1 & LSBoost & Hour\# & 0.244809 & 30 & 40 \\
+S1 & LSBoost & RH\_3, lights, T2, rv1, RH\_out, RH\_2 & 0.000000 each & 30 & 40 \\
+S2 & LSBoost & Appliances\_t & 48.818012 & 30 & 40 \\
+S1S2 & LSBoost & Appliances\_t & 48.818012 & 30 & 40 \\
+\end{longtable}
+
+\section{Ensemble filter cardinality sensitivity}\label{b.4.-ensemble-filter-cardinality-sensitivity}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}@{}}
+\caption{Ensemble filter cardinality sensitivity.}\label{tab:app-b-3-ensemble-filter-cardinality-sensitivity}\\
+\toprule\noalign{}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Requested m}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Selected count}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Overlap with S1 at m=10}
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Requested m}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Selected count}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Overlap with S1 at m=10}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+5 & 5 & 5 \\
+8 & 8 & 8 \\
+10 & 10 & 10 \\
+12 & 12 & 8 \\
+15 & 15 & 8 \\
+\end{longtable}
+
+\emph{Đây là output của cell 26. Chỉ số overlap mô tả số feature chung giữa tập được chọn ở m\_test và tập S1 chính m=10; không phải accuracy sau huấn luyện.}
+
+\section{SIFE audit counts}\label{b.5.-sife-audit-counts}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}@{}}
+\caption{SIFE audit counts.}\label{tab:app-b-4-sife-audit-counts}\\
+\toprule\noalign{}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Track}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Model}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Unique subsets evaluated}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Final selected features}
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Track}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Model}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Unique subsets evaluated}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Final selected features}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+S2 & LASSO & 3785 & Appliances\_t \\
+S2 & SVR-Linear & 3841 & Appliances\_t \\
+S2 & SVR-RBF & 3805 & Appliances\_t \\
+S2 & GPR & 3662 & Appliances\_t \\
+S2 & LSBoost & 3835 & Appliances\_t \\
+S1S2 & LASSO & 936 & Appliances\_t \\
+S1S2 & SVR-Linear & 960 & Appliances\_t \\
+S1S2 & SVR-RBF & 939 & Appliances\_t \\
+S1S2 & GPR & 899 & Appliances\_t \\
+S1S2 & LSBoost & 935 & Appliances\_t \\
+\end{longtable}

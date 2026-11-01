@@ -1,0 +1,11 @@
+\chapter*{MỞ ĐẦU}
+\addcontentsline{toc}{chapter}{MỞ ĐẦU}
+\label{chap:mo-dau}
+
+Dự báo tiêu thụ năng lượng có vai trò quan trọng trong quản lý tòa nhà, điều phối phụ tải, lập kế hoạch vận hành và đánh giá hiệu quả sử dụng năng lượng. Ở cấp độ một hộ gia đình hoặc một công trình, chuỗi tiêu thụ có thể biến động theo lịch sinh hoạt, hoạt động của thiết bị, ánh sáng, nhiệt độ và độ ẩm. Dữ liệu cảm biến hiện đại cho phép quan sát đồng thời nhiều biến, nhưng cũng làm xuất hiện câu hỏi về việc chọn biến nào, mô hình nào phù hợp và làm thế nào để diễn giải đóng góp của các biến đầu vào.
+
+Eskandari và cộng sự (2024) đề xuất một framework tích hợp ba hướng Feature Selection (ensemble filter, wrapper và hybrid ensemble filter-wrapper), năm mô hình học máy và SHAP. Điểm đáng chú ý của nghiên cứu không nằm ở một estimator đơn lẻ mà ở việc đặt lựa chọn đặc trưng và mô hình dự báo trong một quy trình so sánh có hệ thống. Bài báo hướng tới dự báo tiêu thụ năng lượng quốc gia của Vương quốc Anh với dữ liệu theo tháng, đồng thời tìm một thỏa hiệp giữa độ chính xác và số lượng biến cần thiết {[}1{]}.
+
+Báo cáo này tái triển khai framework trên bộ Appliances Energy Prediction của UCI, là dữ liệu cảm biến tại một ngôi nhà hiệu quả năng lượng ở Bỉ. Do khác biệt về miền dữ liệu, tần suất, target, danh sách biến và nền tảng triển khai, công việc được xác định là method reproduction trên dữ liệu khác, không phải replication định lượng trực tiếp. Sự phân biệt này được duy trì xuyên suốt báo cáo: phần lý thuyết mô tả phương pháp bài báo; phần triển khai mô tả đúng code ABC-1.2; phần kết quả chỉ trình bày những gì đã được notebook ghi nhận.
+
+Nội dung báo cáo được tổ chức thành sáu chương theo cấu trúc báo cáo mẫu và có bổ sung một chương riêng để trình bày kết quả do tác giả nghiên cứu gốc công bố. Chương 1 giới thiệu bài toán và nghiên cứu gốc; Chương 2 phân tích cơ sở lý thuyết và lý do kết hợp các phương pháp; Chương 3 mô tả dữ liệu, môi trường và giao thức thực nghiệm; Chương 4 trình bày kết quả tái triển khai trên KAG gồm 20 cấu hình forecasting, baseline, SHAP và hai thí nghiệm mở rộng; Chương 5 trình bày riêng kết quả thực nghiệm được công bố trong bài báo gốc để làm mốc tham chiếu; Chương 6 tổng kết kết quả, giới hạn và hướng phát triển. Hình xuất từ notebook và hình/bảng trích từ bài báo được tách thành các phụ lục riêng, có ghi rõ nguồn.

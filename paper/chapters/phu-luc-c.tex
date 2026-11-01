@@ -1,0 +1,167 @@
+\chapter{Cấu hình thực nghiệm và kiểm toán nguồn}\label{app:audit}
+\setcounter{table}{0}\renewcommand{\thetable}{PL.C.\arabic{table}}
+
+\section{Best parameters from Bayesian Optimization}\label{c.1.-best-parameters-from-bayesian-optimization}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}@{}}
+\caption{Best parameters from Bayesian Optimization.}\label{tab:app-c-0-best-parameters-from-bayesian-optimization}\\
+\toprule\noalign{}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Model}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Best parameters}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Validation best score}
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Model}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Best parameters}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Validation best score}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+LASSO & alpha = 0.0002888177 & 0.062402 \\
+SVR-Linear & C = 36.3661383; epsilon = 0.0002657135 & 0.063067 \\
+SVR-RBF & C = 43.1636967; gamma = 0.0011268743; epsilon = 0.0151827249 & 0.064026 \\
+GPR & alpha = 0.1; length\_scale = 2.0 & 0.069082 \\
+LSBoost & learning\_rate = 0.01; max\_leaf\_nodes = 4; n\_estimators = 250 & 0.065428 \\
+\end{longtable}
+
+\section{Model parameters reported in original paper and mapping}\label{c.2.-model-parameters-reported-in-original-paper-and-mapping}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}@{}}
+\caption{Model parameters reported in original paper and mapping.}\label{tab:app-c-1-model-parameters-reported-in-original-paper-and-}\\
+\toprule\noalign{}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Model}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Paper Table 3}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Python mapping / note}
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Model}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Paper Table 3}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Python mapping / note}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+LASSO & lambda = 1.16e-4 & sklearn Lasso alpha = 1.16e-4 reference; Bayes search later updated alpha. \\
+SVR-Linear & C=10; epsilon=0.005 & sklearn SVR(kernel=linear); reference values then Bayes optimized. \\
+SVR-RBF & C=10.5; gamma=35; epsilon=.003 & sklearn SVR(kernel=rbf); reference values then Bayes optimized. \\
+LSBoost & 12 max splits; pruning off; 8 cycles; lr=.28 & GradientBoosting\allowbreak Regressor; `max\_leaf\_nodes=13` reference mapping; final best search parameters differ. \\
+GPR & sigma=.046; subset of regressors; pure quadratic basis & Constant×\allowbreak RBF+\allowbreak WhiteKernel GPR capped at 1.800 train rows; not equivalent. \\
+\end{longtable}
+
+\section{Ma trận truy xuất số liệu trong báo cáo}\label{c.3.-ma-trux1eadn-truy-xuux1ea5t-sux1ed1-liux1ec7u-trong-buxe1o-cuxe1o}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}@{}}
+\caption{Ma trận truy xuất số liệu trong báo cáo.}\label{tab:app-c-2-ma-tr-n-truy-xu-t-s-li-u-trong-b-o-c-o}\\
+\toprule\noalign{}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Nội dung}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Nguồn Notebook}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Bằng chứng được lưu}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Trạng thái}
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Nội dung}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Nguồn Notebook}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Bằng chứng được lưu}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Trạng thái}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Dataset shape, time range, SHA256 & Notebook cell 13 & CSV fingerprint / df\_raw & Verified \\
+Missing, duplicate rows/timestamps, 10-min interval & Notebook cell 14 & Quality summary & Verified \\
+rv1/rv2 duplicate columns & Notebook cell 16 & rv2 dropped iff exact match & Verified \\
+IQR outliers 2,138 / 10.833544\%; none removed & Notebook cell 18 & IQR result and REMOVE\_\allowbreak OUTLIERS=False & Verified \\
+36 candidate features; target Appliances\_t\_plus\_1 & Notebook cell 20 & Supervised data summary & Verified \\
+Train 15,787 / Test 3,947 & Notebook cell 22 & Chronological split info & Verified \\
+S1 ten features and votes & Notebook cell 26 & Ensemble importance/vote table & Verified \\
+S2/S1S2 one selected feature per model & Notebook cell 38 + feature\_selection JSON / user supplied SIFE logs & Table 6 output and logs & Verified \\
+BayesSearchCV best parameters & Notebook cell 47 & Best parameters logs & Verified \\
+20 configurations all status ok & Notebook cell 50 & paper\_results table & Verified \\
+Baseline results & Notebook cell 52 & baseline\_results table & Verified \\
+Subset mean metrics and best config & Notebook cell 54 & paper\_avg table & Verified \\
+SHAP summary values & Notebook cell 58 & mean\_abs\_SHAP table & Verified \\
+E1 lag ablation & Notebook cell 64 & lag\_\allowbreak ablation\_\allowbreak results.csv and output & Verified \\
+E2 Gaussian robustness & Notebook cell 65 & gaussian\_\allowbreak noise\_\allowbreak summary.csv and output & Verified \\
+Output artifacts exist & Notebook cell 66 & E1/E2 file inventory & Verified \\
+\end{longtable}
+
+\section{Đầu ra mở rộng E1/E2}\label{c.4.-ux111ux1ea7u-ra-mux1edf-rux1ed9ng-e1e2}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}@{}}
+\caption{Đầu ra mở rộng E1/E2.}\label{tab:app-c-3-u-ra-m-r-ng-e1-e2}\\
+\toprule\noalign{}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Thí nghiệm}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Tệp đầu ra đã xác nhận}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Mục đích}
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Thí nghiệm}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Tệp đầu ra đã xác nhận}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Mục đích}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+E1 & lag\_\allowbreak ablation\_\allowbreak results.csv; lag\_\allowbreak ablation\_\allowbreak predictions.csv; lag\_\allowbreak ablation\_\allowbreak rmse.png; S1\_\allowbreak LSBoost\_\allowbreak NoLag.joblib & Metric, predictions, visualization và mô hình đã fit. \\
+E2 & gaussian\_\allowbreak noise\_\allowbreak all\_\allowbreak runs.csv; gaussian\_\allowbreak noise\_\allowbreak summary.csv; gaussian\_\allowbreak noise\_\allowbreak config.json; gaussian\_\allowbreak noise\_\allowbreak robustness.png & Kết quả 20 lượt, thống kê mean/std, cấu hình và biểu đồ. \\
+\end{longtable}
+
+\section{Ghi chú tái lập}\label{c.5.-ghi-chuxfa-tuxe1i-lux1eadp}
+
+Notebook ghi `experiment\_revision=ABC-1.2`, `experiment\_mode=paper`, random seed 42 và SHA-256 dataset `\url{2820bf712ad0275cb18b85a05250926100d8e65ebb9f4d2d016ca91ea152a25d}`. Run root nằm tại `outputs/paper/`; E1/E2 nằm dưới `outputs/paper/extended\_experiments/`. Backup ZIP được ghi ở notebook cell 61 với kích thước 121,02 MB. Các thông tin đường dẫn tuyệt đối có thể khác khi di chuyển project sang máy khác; nên dùng path tương đối hoặc cấu hình lại `PROJECT\_ROOT` khi tái chạy.

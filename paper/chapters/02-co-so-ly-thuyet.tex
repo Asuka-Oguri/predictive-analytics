@@ -1,0 +1,1054 @@
+\chapter{Cơ sở lý thuyết và framework nghiên cứu}
+\label{chap:theoretical-framework}
+
+% ============================================================
+% PHẦN I: LÝ THUYẾT VÀ FRAMEWORK NGHIÊN CỨU GỐC
+% ============================================================
+
+\section{Cơ sở lý thuyết và framework nghiên cứu gốc}
+\label{sec:original-framework}
+
+Phần này trình bày cơ sở phương pháp luận và framework được đề xuất
+trong nghiên cứu của Eskandari et al. [1]. Trọng tâm là các nhóm
+phương pháp lựa chọn đặc trưng, cơ chế kết hợp nhiều bộ chọn,
+thuật toán SIFE và những thành phần hỗ trợ dự báo, diễn giải mô hình.
+Các kết quả thực nghiệm do tác giả công bố được trình bày riêng
+trong Chương 3.
+
+\subsection{Dự báo chuỗi thời gian trong tiêu thụ năng lượng}
+\label{subsec:time-series-theory}
+
+Dự báo chuỗi thời gian sử dụng các quan sát trong quá khứ để ước lượng
+giá trị của một hoặc nhiều thời điểm trong tương lai. Đối với bài toán
+tiêu thụ năng lượng, dữ liệu đầu vào có thể bao gồm các biến đo lường
+từ cảm biến trong nhà, điều kiện khí tượng, trạng thái chiếu sáng
+và các thông tin liên quan đến thời gian.
+
+Với dữ liệu đa biến, tại thời điểm $t$, hệ thống có thể được biểu diễn
+bằng vector đặc trưng:
+
+\begin{equation}
+    \mathbf{x}(t)
+    =
+    [x_1(t),x_2(t),\ldots,x_d(t)]
+    \label{eq:time-series-vector}
+\end{equation}
+
+Trong đó, $d$ là số lượng biến đầu vào. Mục tiêu dự báo là ước lượng
+giá trị của biến mục tiêu tại thời điểm tương lai dựa trên những
+quan sát trước đó.
+
+Tùy theo số lượng mốc tương lai cần dự báo, bài toán có thể được chia
+thành dự báo một bước (one-step-ahead forecasting) và dự báo nhiều
+bước (multi-step hoặc multi-horizon forecasting). Trong dự báo một
+bước, mô hình chỉ ước lượng giá trị tại thời điểm kế tiếp; trong khi
+đó, dự báo nhiều bước yêu cầu mô hình tạo ra một chuỗi giá trị tương
+lai tại nhiều khoảng thời gian khác nhau.
+
+\subsection{Feature Selection và các nhóm phương pháp}
+\label{subsec:feature-selection-theory}
+
+Feature Selection là quá trình lựa chọn một tập con từ các biến đầu
+vào ban đầu mà không chuyển đổi chúng sang một không gian đặc trưng
+mới. Mục tiêu của quá trình này là giữ lại những biến có ích cho dự
+báo, giảm số chiều dữ liệu, hạn chế thông tin dư thừa và hỗ trợ khả
+năng diễn giải của mô hình.
+
+Các phương pháp Feature Selection thường được chia thành ba nhóm
+chính: Filter, Embedded và Wrapper. Ngoài ra, Hybrid Feature Selection
+kết hợp ưu điểm của nhiều nhóm phương pháp, thường bằng cách sử dụng
+Filter để thu hẹp tập ứng viên trước khi áp dụng Wrapper.
+
+\small
+\begin{longtable}{
+    @{}
+    >{\raggedright\arraybackslash}p{0.15\textwidth}
+    >{\raggedright\arraybackslash}p{0.28\textwidth}
+    >{\raggedright\arraybackslash}p{0.25\textwidth}
+    >{\raggedright\arraybackslash}p{0.24\textwidth}
+    @{}
+}
+\caption{So sánh các nhóm phương pháp Feature Selection.}
+\label{tab:feature-selection-groups}\\
+
+\toprule
+\textbf{Nhóm}
+&
+\textbf{Cách đánh giá}
+&
+\textbf{Ưu điểm}
+&
+\textbf{Hạn chế chính}
+\\
+\midrule
+\endfirsthead
+
+\toprule
+\textbf{Nhóm}
+&
+\textbf{Cách đánh giá}
+&
+\textbf{Ưu điểm}
+&
+\textbf{Hạn chế chính}
+\\
+\midrule
+\endhead
+
+\bottomrule
+\endlastfoot
+
+Filter
+&
+Sử dụng các thước đo thống kê hoặc thông tin giữa biến đầu vào
+và biến mục tiêu.
+&
+Tốc độ nhanh, có thể xếp hạng nhiều biến và ít phụ thuộc vào
+một estimator cụ thể.
+&
+Có thể bỏ qua tương tác giữa các biến hoặc không tối ưu trực tiếp
+cho mô hình dự báo cuối cùng.
+\\
+
+Embedded
+&
+Quá trình lựa chọn đặc trưng được tích hợp trong cơ chế học
+của estimator.
+&
+Importance phản ánh cấu trúc mà mô hình đã học và không cần
+thử toàn bộ các tập con như Wrapper.
+&
+Kết quả phụ thuộc vào họ mô hình và cấu hình huấn luyện.
+\\
+
+Wrapper
+&
+Thử nghiệm các tập con đặc trưng bằng cách huấn luyện estimator
+và đánh giá chất lượng dự báo.
+&
+Có tính model-aware, trực tiếp gắn với mục tiêu của mô hình
+cuối cùng.
+&
+Chi phí tính toán cao và có nguy cơ overfit tập validation
+nếu không kiểm soát quá trình tìm kiếm.
+\\
+
+Hybrid
+&
+Kết hợp Filter để thu hẹp tập ứng viên và Wrapper để lựa chọn
+tập đặc trưng cuối cùng.
+&
+Giảm không gian tìm kiếm nhưng vẫn giữ được khả năng đánh giá
+đặc trưng theo estimator.
+&
+Chất lượng phụ thuộc vào bước Filter; biến hữu ích có thể bị
+loại trước khi Wrapper đánh giá.
+\\
+
+\end{longtable}
+\normalsize
+
+\subsection{Các phương pháp lựa chọn đặc trưng cơ sở}
+\label{subsec:base-selectors-theory}
+
+Framework nghiên cứu gốc kết hợp bốn phương pháp lựa chọn đặc trưng:
+mRMR, Relief, F-test và Random Forest. Các phương pháp này sử dụng
+những tiêu chí đánh giá khác nhau, qua đó cung cấp nhiều góc nhìn
+về mức độ quan trọng của từng biến.
+
+\subsubsection{Maximum Relevance Minimum Redundancy (mRMR)}
+
+mRMR (Maximum Relevance Minimum Redundancy) sử dụng mutual information
+để cân bằng hai tiêu chí: mức độ liên quan giữa một biến với biến mục
+tiêu và mức độ dư thừa giữa biến đó với các biến đã được lựa chọn.
+
+Mục tiêu là ưu tiên những biến cung cấp nhiều thông tin về target,
+đồng thời hạn chế lựa chọn các biến mang thông tin gần trùng lặp
+với tập đặc trưng hiện có [13].
+
+Với $S$ là tập các biến đã được lựa chọn, điểm đánh giá của một biến
+ứng viên $x_j$ có thể được biểu diễn như sau:
+
+\begin{equation}
+    \operatorname{score}(x_j)
+    =
+    I(x_j;y)
+    -
+    \frac{1}{|S|}
+    \sum_{x_i \in S} I(x_j;x_i)
+    \label{eq:mrmr-original}
+\end{equation}
+
+Trong đó, $I(x_j;y)$ biểu thị mutual information giữa biến $x_j$
+và biến mục tiêu $y$; thành phần thứ hai đo mức độ dư thừa trung bình
+giữa $x_j$ và các biến đã nằm trong tập $S$. Ở bước lựa chọn đầu tiên,
+khi $S$ chưa có phần tử, thuật toán ưu tiên biến có relevance lớn nhất.
+
+\subsubsection{Relief}
+
+Relief là phương pháp đánh giá đặc trưng dựa trên sự khác biệt giữa
+một mẫu và các mẫu lân cận gần nhất. Ý tưởng chính là một đặc trưng
+có giá trị thay đổi đáng kể giữa các mẫu thuộc những nhóm khác nhau
+có thể cung cấp thông tin hữu ích cho việc phân biệt các mẫu.
+
+Phương pháp Relief cập nhật trọng số đặc trưng dựa trên mức độ khác
+biệt giữa mẫu đang xét với các láng giềng gần. Các đặc trưng có khả
+năng phân biệt những mẫu có target khác nhau sẽ nhận được mức đánh
+giá cao hơn.
+
+\subsubsection{F-test Feature Selection}
+
+F-test đánh giá từng biến đầu vào thông qua thống kê $F$ của mô hình
+hồi quy đơn biến. Phương pháp này đo lường mức độ liên hệ tuyến tính
+giữa từng đặc trưng và biến mục tiêu.
+
+Ưu điểm của F-test là chi phí tính toán thấp, dễ triển khai và
+có khả năng cung cấp một tiêu chí thống kê độc lập với các phương
+pháp còn lại. Tuy nhiên, phương pháp đánh giá từng biến riêng lẻ
+nên không trực tiếp phản ánh mức độ dư thừa giữa các predictors
+hoặc những quan hệ phi tuyến phức tạp.
+
+\subsubsection{Random Forest Feature Importance}
+
+Random Forest là mô hình ensemble gồm nhiều decision trees được
+huấn luyện trên những mẫu dữ liệu và tập đặc trưng khác nhau.
+Thông qua cơ chế tổng hợp nhiều cây, mô hình có khả năng biểu diễn
+các quan hệ phi tuyến và tương tác giữa các biến.
+
+Trong Feature Selection, mức độ quan trọng của một biến có thể
+được đánh giá thông qua feature importance của Random Forest.
+Một cách tính phổ biến là impurity-based importance, dựa trên mức
+độ đóng góp của biến vào việc giảm impurity tại các nút chia.
+
+Tuy nhiên, importance của Random Forest có thể bị ảnh hưởng bởi
+cấu trúc dữ liệu, số lượng giá trị có thể chia và cấu hình mô hình.
+Do đó, việc kết hợp Random Forest với những bộ chọn khác giúp
+tránh phụ thuộc hoàn toàn vào một tiêu chí đánh giá duy nhất.
+
+\subsection{Ensemble Filter}
+\label{subsec:ensemble-filter-original}
+
+Một hạn chế của việc sử dụng một bộ chọn đặc trưng đơn lẻ là kết quả
+có thể phụ thuộc mạnh vào tiêu chí đánh giá của phương pháp đó.
+Ví dụ, mRMR tập trung vào relevance và redundancy, F-test đánh giá
+liên hệ tuyến tính từng biến, trong khi Random Forest dựa trên cấu
+trúc cây quyết định.
+
+Để tận dụng những góc nhìn bổ sung này, Eskandari et al. đề xuất
+kết hợp bốn phương pháp cơ sở gồm mRMR, Relief, F-test và Random
+Forest trong một Ensemble Filter [1].
+
+Về nguyên tắc, các bộ chọn thực hiện đánh giá và xếp hạng đặc trưng
+theo tiêu chí riêng. Kết quả sau đó được tổng hợp thông qua điểm
+importance kết hợp và cơ chế voting. Cơ chế voting giúp đánh giá
+mức độ đồng thuận giữa các bộ chọn, trong khi điểm importance
+phản ánh mức độ ưu tiên của từng biến.
+
+Framework gốc sử dụng cơ chế tổng hợp điểm và ngưỡng số phiếu
+để lựa chọn những đặc trưng được nhiều phương pháp ủng hộ.
+Nhờ đó, tập đặc trưng đầu ra không chỉ phụ thuộc vào thứ hạng
+của một bộ chọn đơn lẻ mà còn xét đến sự đồng thuận giữa nhiều
+phương pháp khác nhau.
+
+\subsection{SIFE Wrapper và hàm mục tiêu}
+\label{subsec:sife-theory}
+
+SIFE (Set-based Integer-coded Fuzzy granular Evolutionary) là
+thuật toán lựa chọn đặc trưng dựa trên biểu diễn tập hợp và tìm
+kiếm tiến hóa. Phương pháp được thiết kế để tìm kiếm các tập con
+đặc trưng có khả năng cân bằng giữa chất lượng dự báo và số lượng
+biến được giữ lại.
+
+Theo mô tả của nghiên cứu gốc, SIFE sử dụng biểu diễn tập hợp,
+fuzzy granulation và các toán tử tiến hóa để tạo ra, đánh giá
+và cập nhật quần thể nghiệm qua nhiều thế hệ. Cơ chế three-parent
+crossover khai thác quan hệ union và intersection giữa các tập hợp
+đặc trưng; đồng thời, fuzzy granulation hỗ trợ quá trình khởi tạo,
+lựa chọn cá thể và duy trì diversity trong quần thể [1,4].
+
+Hàm mục tiêu của thuật toán kết hợp prediction error và tỷ lệ
+số lượng đặc trưng được lựa chọn:
+
+\begin{equation}
+    F(S)
+    =
+    w_1 \cdot \operatorname{Er}(S)
+    +
+    w_2 \cdot \operatorname{Ps}(S)
+    \label{eq:sife-objective-original}
+\end{equation}
+
+Trong đó:
+
+\begin{itemize}
+    \item $\operatorname{Er}(S)$ là prediction error của estimator
+    khi sử dụng tập đặc trưng $S$.
+    \item $\operatorname{Ps}(S)$ là tỷ lệ số đặc trưng được lựa chọn
+    trên tổng số đặc trưng ứng viên.
+    \item $w_1$ và $w_2$ là các trọng số điều chỉnh mức độ ưu tiên
+    giữa chất lượng dự báo và tính gọn nhẹ của tập đặc trưng.
+\end{itemize}
+
+Nghiên cứu gốc sử dụng $w_1=0{,}80$ và $w_2=0{,}20$. Như vậy,
+thuật toán ưu tiên chất lượng dự báo nhưng vẫn xem xét mức độ
+gọn nhẹ của tập đặc trưng. Một tập con có ít biến hơn có thể
+giảm thành phần phạt về kích thước, nhưng nếu loại bỏ những
+biến quan trọng thì prediction error có thể tăng.
+
+Các tham số SIFE được mô tả trong bài báo gồm population size
+bằng 120, số vòng lặp tối đa bằng 60, crossover probability
+bằng 0,6 và mutation probability bằng 0,5 [1].
+
+\subsection{Các chiến lược Feature Selection trong framework gốc}
+\label{subsec:selection-strategies-original}
+
+Framework nghiên cứu kết hợp các phương pháp lựa chọn đặc trưng
+thành ba chiến lược chính, đồng thời sử dụng trường hợp không lựa
+chọn đặc trưng làm baseline tham chiếu.
+
+\begin{itemize}
+    \item \textbf{S0 -- No Feature Selection:} sử dụng toàn bộ
+    đặc trưng đầu vào, không thực hiện bước lựa chọn biến.
+    Đây là baseline để đánh giá ảnh hưởng của Feature Selection.
+
+    \item \textbf{S1 -- Ensemble Filter:} sử dụng Ensemble Filter
+    để lựa chọn tập đặc trưng dựa trên kết quả tổng hợp của các
+    bộ chọn cơ sở.
+
+    \item \textbf{S2 -- SIFE Wrapper:} sử dụng trực tiếp thuật toán
+    SIFE trên tập đặc trưng ban đầu. Quá trình tìm kiếm được đánh
+    giá theo estimator cụ thể.
+
+    \item \textbf{S1S2 -- Hybrid Filter-Wrapper:} kết hợp Ensemble
+    Filter và SIFE. Ensemble Filter thu hẹp tập đặc trưng ứng viên,
+    sau đó SIFE tiếp tục tìm kiếm tập con phù hợp với estimator.
+\end{itemize}
+
+Sự khác biệt về đầu vào của các chiến lược được thể hiện trong
+Bảng~\ref{tab:original-selection-strategies}.
+
+\small
+\begin{longtable}{
+    @{}
+    >{\raggedright\arraybackslash}p{0.13\textwidth}
+    >{\raggedright\arraybackslash}p{0.35\textwidth}
+    >{\raggedright\arraybackslash}p{0.39\textwidth}
+    @{}
+}
+\caption{Cấu trúc các chiến lược Feature Selection trong framework gốc.}
+\label{tab:original-selection-strategies}\\
+
+\toprule
+\textbf{Chiến lược}
+&
+\textbf{Quy trình lựa chọn}
+&
+\textbf{Mục đích}
+\\
+\midrule
+\endfirsthead
+
+\toprule
+\textbf{Chiến lược}
+&
+\textbf{Quy trình lựa chọn}
+&
+\textbf{Mục đích}
+\\
+\midrule
+\endhead
+
+\bottomrule
+\endlastfoot
+
+S0
+&
+Sử dụng toàn bộ đặc trưng ban đầu.
+&
+Tạo baseline để so sánh với các chiến lược có lựa chọn đặc trưng.
+\\
+
+S1
+&
+Áp dụng Ensemble Filter trên tập đặc trưng ban đầu.
+&
+Lựa chọn đặc trưng dựa trên sự kết hợp của nhiều bộ chọn cơ sở.
+\\
+
+S2
+&
+Áp dụng SIFE trực tiếp trên tập đặc trưng ban đầu.
+&
+Tìm kiếm tập con theo chất lượng dự báo của estimator.
+\\
+
+S1S2
+&
+Áp dụng Ensemble Filter trước, sau đó sử dụng SIFE trên tập
+đặc trưng đã được rút gọn.
+&
+Kết hợp khả năng lọc nhanh của Filter và khả năng tối ưu
+theo estimator của Wrapper.
+\\
+
+\end{longtable}
+\normalsize
+
+\subsection{Các mô hình dự báo}
+\label{subsec:forecasting-models-original}
+
+Sau bước lựa chọn đặc trưng, framework sử dụng các mô hình dự báo
+để đánh giá hiệu quả của từng tập đặc trưng. Nghiên cứu gốc xem xét
+nhiều họ mô hình khác nhau, từ hồi quy tuyến tính đến các mô hình
+phi tuyến và mô hình dựa trên kernel.
+
+\subsubsection{LASSO}
+
+LASSO (Least Absolute Shrinkage and Selection Operator) là mô hình
+hồi quy tuyến tính sử dụng regularization L1. Thành phần phạt L1
+giúp co một số hệ số hồi quy về 0, qua đó tạo ra mô hình thưa và
+có thể hỗ trợ lựa chọn biến.
+
+\subsubsection{SVR-Linear}
+
+Support Vector Regression với linear kernel xây dựng hàm hồi quy
+trong không gian đặc trưng tuyến tính. Mô hình phù hợp khi quan hệ
+giữa đầu vào và target có thể được biểu diễn tương đối tốt bằng
+một hàm tuyến tính.
+
+\subsubsection{SVR-RBF}
+
+SVR với Radial Basis Function kernel có khả năng biểu diễn các
+quan hệ phi tuyến thông qua ánh xạ kernel. Hiệu quả của mô hình
+phụ thuộc vào các tham số như $C$, $\gamma$ và $\epsilon$.
+
+\subsubsection{Gaussian Process Regression}
+
+Gaussian Process Regression (GPR) là phương pháp hồi quy xác suất
+dựa trên Gaussian Process. Mô hình sử dụng kernel để biểu diễn quan
+hệ giữa các quan sát và có thể cung cấp phân phối dự báo, qua đó
+hỗ trợ đánh giá mức độ không chắc chắn.
+
+\subsubsection{LSBoost}
+
+LSBoost là phương pháp gradient boosting sử dụng squared error
+làm hàm mất mát. Các weak learners, thường là decision trees,
+được xây dựng tuần tự để học phần sai số còn lại của tổ hợp mô hình
+trước đó. Cơ chế này cho phép mô hình biểu diễn các quan hệ phi
+tuyến trong dữ liệu.
+
+\subsection{Bayesian Optimization}
+\label{subsec:bayesian-optimization-original}
+
+Bayesian Optimization là phương pháp tối ưu hóa các hàm mục tiêu
+có chi phí đánh giá cao. Thay vì thử toàn bộ không gian tham số,
+phương pháp sử dụng surrogate model để xấp xỉ hàm mục tiêu và
+acquisition function để đề xuất cấu hình tiếp theo cần đánh giá.
+
+Trong framework nghiên cứu, Bayesian Optimization được sử dụng
+để tìm kiếm cấu hình tham số phù hợp cho các mô hình dự báo.
+Cách tiếp cận này giúp khai thác thông tin từ những lần đánh giá
+trước đó và giảm số lần thử nghiệm so với việc tìm kiếm vét cạn
+trên toàn bộ không gian tham số [1,10].
+
+\subsection{SHAP và khả năng diễn giải mô hình}
+\label{subsec:shap-theory}
+
+SHAP (SHapley Additive exPlanations) dựa trên giá trị Shapley
+trong cooperative game theory để phân bổ phần đóng góp của từng
+đặc trưng vào dự báo của mô hình.
+
+Đối với một mẫu đầu vào $x$, biểu diễn giải thích có dạng:
+
+\begin{equation}
+    f(x) = \phi_0 + \sum_{j=1}^{M}\phi_j
+    \label{eq:shap-additive-original}
+\end{equation}
+
+Trong đó, $\phi_0$ là giá trị cơ sở của mô hình và $\phi_j$
+là phần đóng góp của đặc trưng thứ $j$ vào dự báo tại mẫu đang xét.
+
+Giá trị tuyệt đối trung bình của SHAP trên nhiều mẫu thường được
+sử dụng để đánh giá global feature importance. Ngoài ra, SHAP
+có thể được trình bày dưới dạng summary plot, dependence plot
+hoặc heatmap để quan sát mức độ và chiều tác động của các biến.
+
+Trong nghiên cứu gốc, SHAP được sử dụng như một lớp phân tích
+bổ sung nhằm hỗ trợ diễn giải các mô hình dự báo và vai trò của
+những đặc trưng được lựa chọn [1,8].
+
+% ============================================================
+% PHẦN II: FRAMEWORK ĐƯỢC HIỆN THỰC HÓA TRONG NGHIÊN CỨU
+% ============================================================
+
+\section{Framework được hiện thực hóa trong nghiên cứu này}
+\label{sec:implemented-framework}
+
+Dựa trên framework nghiên cứu gốc, nghiên cứu này xây dựng một
+phiên bản triển khai bằng Python trên bộ dữ liệu KAG Energy
+Consumption. Mục tiêu là giữ lại logic so sánh giữa các chiến
+lược lựa chọn đặc trưng, đồng thời điều chỉnh một số thuật toán
+và công cụ để phù hợp với dữ liệu, thư viện và môi trường thực
+nghiệm.
+
+Do khác biệt về bộ dữ liệu và môi trường triển khai, phiên bản
+này không được xem là bản sao hoàn toàn của mã nguồn MATLAB
+trong nghiên cứu gốc. Những điểm giữ nguyên, điều chỉnh và
+thay thế được trình bày cụ thể trong các mục dưới đây.
+
+\subsection{Định nghĩa bài toán dự báo}
+\label{subsec:implemented-forecasting-task}
+
+Nghiên cứu sử dụng dữ liệu tiêu thụ năng lượng trong bộ dữ liệu
+KAG Energy Consumption. Dữ liệu đầu vào có dạng đa biến, bao gồm
+các biến liên quan đến mức tiêu thụ năng lượng, cảm biến môi
+trường trong nhà, điều kiện khí tượng, trạng thái chiếu sáng
+và thông tin thời gian.
+
+Khác với bài toán dự báo nhiều bước, notebook xây dựng bài toán
+hồi quy dự báo một bước. Biến mục tiêu là giá trị tiêu thụ năng
+lượng của thiết bị tại thời điểm kế tiếp:
+
+\begin{equation}
+    y(t) = \texttt{Appliances}(t+1)
+    \label{eq:implemented-target}
+\end{equation}
+
+Các biến đầu vào được sử dụng để ước lượng giá trị target tại
+thời điểm $t+1$. Do đó, đây là bài toán one-step-ahead regression,
+không phải bài toán dự báo đồng thời nhiều horizon.
+
+\subsection{Hiện thực hóa các base selectors}
+\label{subsec:implemented-base-selectors}
+
+Nghiên cứu sử dụng bốn base selectors tương ứng với cấu trúc
+Ensemble Filter trong framework gốc. Tuy nhiên, một số phương pháp
+được hiện thực hóa thông qua thư viện Python phù hợp với đặc điểm
+của target liên tục.
+
+\subsubsection{mRMR bằng Mutual Information Regression}
+
+Notebook sử dụng \texttt{mutual\_info\_regression} để ước lượng
+mutual information giữa từng biến đầu vào và target liên tục.
+Quá trình lựa chọn được triển khai theo thủ tục greedy:
+ở bước đầu, thuật toán ưu tiên biến có relevance cao nhất;
+ở các bước tiếp theo, điểm relevance được điều chỉnh bằng
+mức redundancy trung bình với những biến đã lựa chọn.
+
+Đây là cách triển khai mRMR bằng Python cho bài toán regression,
+không phải sao chép trực tiếp mã nguồn MATLAB của nghiên cứu gốc.
+
+\subsubsection{Random Forest Importance}
+
+Random Forest được triển khai bằng
+\texttt{RandomForestRegressor}. Notebook sử dụng cấu hình gồm
+250 cây, \texttt{max\_features=0.8} và
+\texttt{min\_samples\_leaf=2}.
+
+Mức độ quan trọng của biến được lấy từ thuộc tính
+\texttt{feature\_importances\_}. Đây là impurity-based importance,
+do đó kết quả có thể chịu ảnh hưởng bởi cấu trúc biến và cơ chế
+chia nhánh của decision trees.
+
+\subsubsection{RReliefF cho target liên tục}
+
+Relief trong framework gốc được điều chỉnh trong notebook thành
+RReliefF để phù hợp với bài toán hồi quy có target liên tục [5].
+
+RReliefF đánh giá đặc trưng thông qua quan hệ giữa sự thay đổi
+của giá trị đặc trưng và sự thay đổi của target giữa những mẫu
+lân cận. Việc sử dụng RReliefF là một adaptation phù hợp với
+bản chất regression của bài toán KAG; tuy nhiên, đây không phải
+cùng một implementation Relief classification được trình bày
+trong nghiên cứu gốc.
+
+\subsubsection{F-test Feature Selection}
+
+F-test được sử dụng để xếp hạng các biến theo thống kê $F$
+của hồi quy đơn biến. Phương pháp cung cấp một góc nhìn tuyến tính
+và có chi phí tính toán thấp, bổ sung cho các bộ chọn dựa trên
+mutual information, láng giềng và cây quyết định.
+
+\subsection{Hiện thực hóa Ensemble Filter}
+\label{subsec:implemented-ensemble-filter}
+
+Trong notebook, mỗi base selector thực hiện xếp hạng và đề xuất
+tối đa $m=10$ đặc trưng từ 36 candidate features. Kết quả của
+bốn bộ chọn được tổng hợp dựa trên hai thành phần: điểm importance
+và số lượng phiếu ủng hộ.
+
+Cụ thể, \texttt{vote\_count} đếm số base selectors đưa một biến
+vào danh sách Top 10. Các giá trị importance được chuẩn hóa về
+khoảng $[0,1]$; riêng mRMR sử dụng relative rank để đưa điểm
+xếp hạng về cùng thang đo. Sau đó, điểm trung bình được tính
+với trọng số đồng đều $0{,}25$ cho mỗi bộ chọn.
+
+Công thức tổng hợp được biểu diễn như sau:
+
+\begin{equation}
+    \operatorname{AvgImp}(x)
+    =
+    \frac{1}{4}\sum_{k=1}^{4} I_k(x)
+    \label{eq:implemented-avg-importance}
+\end{equation}
+
+\begin{equation}
+    \operatorname{Vote}(x)
+    =
+    \sum_{k=1}^{4}
+    \mathbb{1}
+    \left\{
+        x \in \operatorname{Top10}(k)
+    \right\}
+    \label{eq:implemented-voting}
+\end{equation}
+
+Trong đó, $I_k(x)$ là importance đã chuẩn hóa của biến $x$
+theo bộ chọn thứ $k$; $\mathbb{1}\{\cdot\}$ là hàm chỉ báo,
+nhận giá trị 1 nếu điều kiện đúng và 0 nếu điều kiện sai.
+
+Điều kiện lựa chọn chính là:
+
+\begin{equation}
+    \operatorname{Vote}(x) \geq 2
+    \label{eq:implemented-vote-threshold}
+\end{equation}
+
+Những biến thỏa mãn điều kiện trên được sắp xếp theo
+$\operatorname{AvgImp}$ và lựa chọn tối đa 10 biến có điểm
+cao nhất.
+
+Cách triển khai này giúp việc tổng hợp importance và voting
+trở nên minh bạch, dễ kiểm tra. Tuy nhiên, nó không hoàn toàn
+giống cơ chế elimination và weighted voting được mô tả trong
+nghiên cứu gốc. Vì vậy, kết quả S1 trong nghiên cứu này cần
+được hiểu là kết quả của phiên bản Ensemble Filter đã được
+hiện thực hóa trong notebook.
+
+\subsection{Hiện thực hóa SIFE bằng Python}
+\label{subsec:implemented-sife}
+
+Notebook xây dựng một Python port của SIFE dựa trên mô tả
+thuật toán trong nghiên cứu gốc. Phiên bản này giữ lại hàm
+mục tiêu và biểu diễn tập hợp đặc trưng, đồng thời triển khai
+các toán tử tìm kiếm tiến hóa bằng những cấu trúc phù hợp
+với môi trường Python.
+
+Hàm mục tiêu được sử dụng là:
+
+\begin{equation}
+    F(S)
+    =
+    0{,}80 \cdot \operatorname{Er}(S)
+    +
+    0{,}20 \cdot \operatorname{Ps}(S)
+    \label{eq:implemented-sife-objective}
+\end{equation}
+
+Trong đó, $\operatorname{Er}(S)$ là prediction error trên
+validation và $\operatorname{Ps}(S)$ là tỷ lệ số đặc trưng
+được chọn trên tổng số đặc trưng ứng viên.
+
+Các thành phần chính trong Python port gồm:
+
+\begin{itemize}
+    \item \textbf{Biểu diễn nghiệm:} mỗi cá thể được biểu diễn
+    bằng một tập hợp các feature được lựa chọn.
+
+    \item \textbf{Khởi tạo quần thể:} các nghiệm ban đầu được
+    khởi tạo có phân tầng theo cardinality để tạo ra những
+    tập con có kích thước khác nhau.
+
+    \item \textbf{Duy trì diversity:} khoảng cách Jaccard giữa
+    các tập hợp được sử dụng như một proxy để đánh giá mức độ
+    khác biệt giữa các nghiệm. Đây là phương án thay thế cho
+    fuzzy granulation nguyên bản.
+
+    \item \textbf{Lựa chọn cá thể:} thuật toán sử dụng cơ chế
+    lựa chọn elite kết hợp tournament selection.
+
+    \item \textbf{Crossover:} tournament selection lựa chọn
+    ba parent; các phép union và intersection được sử dụng
+    để tạo ra nghiệm con.
+
+    \item \textbf{Mutation:} phép bù tập hợp được sử dụng để
+    thêm hoặc loại bỏ đặc trưng khỏi nghiệm hiện tại.
+\end{itemize}
+
+Python port giữ các tham số population size bằng 120,
+maximum iteration bằng 60, crossover probability bằng 0,6
+và mutation probability bằng 0,5 theo cấu hình được mô tả
+trong nghiên cứu gốc.
+
+Tuy nhiên, cần lưu ý rằng fuzzy granulation nguyên bản không
+được triển khai. Khoảng cách Jaccard chỉ đóng vai trò proxy
+diversity, do đó cơ chế tìm kiếm không hoàn toàn tương đương
+với SIFE gốc. Ngoài ra, notebook sử dụng vòng lặp
+\texttt{range(max\_iter + 1)}, tạo các mốc generation từ 0
+đến 60, tức 61 mốc được ghi nhận. Đây là một khác biệt nhỏ
+về cách đánh số vòng lặp so với cách mô tả 60 iterations
+trong bài báo.
+
+Vì vậy, SIFE trong nghiên cứu này được xem là một phiên bản
+hiện thực hóa dựa trên mô tả thuật toán, không phải bản sao
+nguyên bản của source code MATLAB.
+
+\subsection{Thiết kế các nhánh thực nghiệm S0, S1, S2 và S1S2}
+\label{subsec:implemented-selection-strategies}
+
+Dựa trên cấu trúc framework gốc, nghiên cứu xây dựng bốn nhánh
+thực nghiệm để so sánh ảnh hưởng của các chiến lược lựa chọn
+đặc trưng trên cùng bài toán dự báo.
+
+\begin{itemize}
+    \item \textbf{S0 -- Baseline:} sử dụng toàn bộ 36 candidate
+    features mà không thực hiện Feature Selection.
+
+    \item \textbf{S1 -- Ensemble Filter:} áp dụng Ensemble Filter
+    trên toàn bộ 36 candidate features. Tập đặc trưng được chọn
+    sau đó được sử dụng làm đầu vào cho các mô hình dự báo.
+
+    \item \textbf{S2 -- Wrapper:} áp dụng SIFE trực tiếp trên
+    toàn bộ 36 candidate features. Quá trình tìm kiếm được
+    thực hiện riêng theo từng estimator.
+
+    \item \textbf{S1S2 -- Hybrid Filter-Wrapper:} áp dụng SIFE
+    độc lập trên tập đặc trưng đã được rút gọn bởi S1. Mỗi
+    estimator thực hiện quá trình tìm kiếm trên cùng không
+    gian ứng viên S1 nhưng có thể đưa ra tập con khác nhau.
+\end{itemize}
+
+Điểm quan trọng trong thiết kế là S1S2 không được tạo bằng cách
+lấy giao hậu nghiệm giữa kết quả S1 và S2. Thay vào đó, SIFE
+được khởi chạy độc lập trên tập ứng viên S1. Đây là cách hiện
+thực hóa trực tiếp logic Hybrid Filter-Wrapper: Filter thực
+hiện bước thu hẹp không gian, sau đó Wrapper tiếp tục lựa
+chọn đặc trưng theo estimator.
+
+Bảng~\ref{tab:implemented-selection-strategies} tóm tắt
+đầu vào và vai trò của từng nhánh trong thực nghiệm.
+
+\small
+\begin{longtable}{
+    @{}
+    >{\raggedright\arraybackslash}p{0.12\textwidth}
+    >{\raggedright\arraybackslash}p{0.29\textwidth}
+    >{\raggedright\arraybackslash}p{0.26\textwidth}
+    >{\raggedright\arraybackslash}p{0.25\textwidth}
+    @{}
+}
+\caption{Thiết kế các nhánh Feature Selection trong nghiên cứu này.}
+\label{tab:implemented-selection-strategies}\\
+
+\toprule
+\textbf{Nhánh}
+&
+\textbf{Đầu vào}
+&
+\textbf{Phương pháp}
+&
+\textbf{Vai trò thực nghiệm}
+\\
+\midrule
+\endfirsthead
+
+\toprule
+\textbf{Nhánh}
+&
+\textbf{Đầu vào}
+&
+\textbf{Phương pháp}
+&
+\textbf{Vai trò thực nghiệm}
+\\
+\midrule
+\endhead
+
+\bottomrule
+\endlastfoot
+
+S0
+&
+36 candidate features.
+&
+Không thực hiện Feature Selection.
+&
+Baseline để đánh giá hiệu quả của việc lựa chọn đặc trưng.
+\\
+
+S1
+&
+36 candidate features.
+&
+Ensemble Filter.
+&
+Đánh giá chiến lược Filter kết hợp nhiều bộ chọn.
+\\
+
+S2
+&
+36 candidate features.
+&
+SIFE, chạy riêng theo từng estimator.
+&
+Đánh giá chiến lược Wrapper trực tiếp.
+\\
+
+S1S2
+&
+Tập đặc trưng đầu ra từ S1.
+&
+SIFE, chạy riêng theo từng estimator.
+&
+Đánh giá chiến lược Hybrid Filter-Wrapper.
+\\
+
+\end{longtable}
+\normalsize
+
+\subsection{Các mô hình dự báo trong thực nghiệm}
+\label{subsec:implemented-models}
+
+Nghiên cứu sử dụng năm mô hình dự báo để đánh giá các nhánh
+Feature Selection: LASSO, SVR-Linear, SVR-RBF, GPR và LSBoost.
+
+Các mô hình được lựa chọn nhằm tạo ra sự đa dạng về cơ chế học,
+bao gồm hồi quy tuyến tính có regularization, hồi quy dựa trên
+support vector, mô hình Gaussian Process và mô hình ensemble
+dựa trên boosting.
+
+Trong notebook, các mô hình được hiện thực hóa bằng thư viện
+scikit-learn:
+
+\begin{itemize}
+    \item \textbf{LASSO:} sử dụng
+    \texttt{sklearn.linear\_model.Lasso}, với regularization L1
+    để kiểm soát hệ số hồi quy.
+
+    \item \textbf{SVR-Linear:} sử dụng
+    \texttt{sklearn.svm.SVR} với linear kernel.
+
+    \item \textbf{SVR-RBF:} sử dụng
+    \texttt{sklearn.svm.SVR} với RBF kernel để biểu diễn
+    các quan hệ phi tuyến.
+
+    \item \textbf{GPR:} sử dụng
+    \texttt{GaussianProcessRegressor} với kernel kết hợp
+    \texttt{ConstantKernel}, \texttt{RBF} và
+    \texttt{WhiteKernel}. Số hàng huấn luyện được giới hạn
+    để kiểm soát chi phí tính toán.
+
+    \item \textbf{LSBoost:} được ánh xạ sang
+    \texttt{GradientBoostingRegressor} với loss
+    \texttt{squared\_error}.
+\end{itemize}
+
+Việc sử dụng các implementation trong scikit-learn giúp thống
+nhất môi trường thực nghiệm và thuận tiện cho quá trình huấn
+luyện, tối ưu tham số và đánh giá mô hình.
+
+\subsection{Hiện thực hóa Bayesian Optimization}
+\label{subsec:implemented-bayesian-optimization}
+
+Thay vì sử dụng công cụ Bayesian Optimization trong MATLAB
+như nghiên cứu gốc, notebook sử dụng
+\texttt{BayesSearchCV} từ thư viện scikit-optimize.
+
+Quá trình tìm kiếm tham số được kết hợp với
+\texttt{TimeSeriesSplit} gồm ba folds để duy trì thứ tự thời
+gian trong quá trình đánh giá. Mỗi mô hình sử dụng 20 iterations
+tìm kiếm cấu hình.
+
+Việc tối ưu tham số chỉ được thực hiện trên training partition.
+Holdout test được giữ riêng để đánh giá cuối cùng và không
+tham gia vào quá trình lựa chọn tham số. Cách tổ chức này
+nhằm hạn chế việc sử dụng thông tin từ tập kiểm tra trong
+quá trình tối ưu mô hình.
+
+\subsection{Hiện thực hóa SHAP}
+\label{subsec:implemented-shap}
+
+Notebook sử dụng \texttt{PermutationExplainer} để ước lượng
+đóng góp của các đặc trưng vào dự báo. Khác với việc tính toán
+đầy đủ mọi tổ hợp đặc trưng để thu được Shapley values chính
+xác, PermutationExplainer sử dụng các phép hoán vị để xấp xỉ
+giá trị đóng góp.
+
+Cấu hình giải thích trong notebook gồm 40 background rows
+và 30 rows được đưa vào quá trình giải thích. Ngân sách đánh
+giá được đặt theo công thức:
+
+\begin{equation}
+    \texttt{max\_evals}=2M+1
+    \label{eq:shap-max-evals}
+\end{equation}
+
+Trong đó, $M$ là số đặc trưng đầu vào của mô hình đang được
+giải thích. Vì vậy, ngân sách đánh giá thay đổi theo số lượng
+đặc trưng của từng nhánh.
+
+Do sử dụng PermutationExplainer với số mẫu và ngân sách đánh
+giá giới hạn, kết quả SHAP trong nghiên cứu này là kết quả
+xấp xỉ. Các giá trị importance được sử dụng để hỗ trợ diễn
+giải hành vi mô hình, không được xem là bằng chứng về quan
+hệ nhân quả giữa biến đầu vào và mức tiêu thụ năng lượng.
+
+\subsection{Tổng hợp những điểm điều chỉnh so với framework gốc}
+\label{subsec:framework-deviations}
+
+Mặc dù nghiên cứu giữ lại cấu trúc phương pháp luận chính
+của framework gốc, một số thành phần được điều chỉnh để phù
+hợp với dữ liệu KAG và môi trường Python. Các khác biệt này
+cần được xác định rõ để tránh diễn giải kết quả thực nghiệm
+như thể hai nghiên cứu sử dụng hoàn toàn cùng một quy trình.
+
+\small
+\begin{longtable}{
+    @{}
+    >{\raggedright\arraybackslash}p{0.19\textwidth}
+    >{\raggedright\arraybackslash}p{0.35\textwidth}
+    >{\raggedright\arraybackslash}p{0.35\textwidth}
+    @{}
+}
+\caption{Đối chiếu framework nghiên cứu gốc và phiên bản triển khai.}
+\label{tab:framework-comparison}\\
+
+\toprule
+\textbf{Thành phần}
+&
+\textbf{Nghiên cứu gốc}
+&
+\textbf{Nghiên cứu này}
+\\
+\midrule
+\endfirsthead
+
+\toprule
+\textbf{Thành phần}
+&
+\textbf{Nghiên cứu gốc}
+&
+\textbf{Nghiên cứu này}
+\\
+\midrule
+\endhead
+
+\bottomrule
+\endlastfoot
+
+Dữ liệu
+&
+Sử dụng bộ dữ liệu tiêu thụ năng lượng trong nghiên cứu gốc.
+&
+Sử dụng bộ dữ liệu KAG Energy Consumption.
+\\
+
+Bài toán dự báo
+&
+Theo thiết kế thực nghiệm của nghiên cứu gốc.
+&
+Hồi quy dự báo một bước với target
+\texttt{Appliances}$(t+1)$.
+\\
+
+mRMR
+&
+Sử dụng mRMR trong nhóm base selectors.
+&
+Triển khai bằng \texttt{mutual\_info\_regression}
+và thủ tục greedy cho target liên tục.
+\\
+
+Relief
+&
+Sử dụng Relief trong Ensemble Filter.
+&
+Sử dụng RReliefF để phù hợp với bài toán regression.
+\\
+
+Random Forest
+&
+Sử dụng Random Forest trong nhóm base selectors.
+&
+Sử dụng \texttt{RandomForestRegressor} và
+impurity-based importance.
+\\
+
+Ensemble Filter
+&
+Tổng hợp importance và voting theo framework gốc.
+&
+Chuẩn hóa importance về $[0,1]$, lấy trung bình đồng trọng số
+và áp dụng ngưỡng voting tối thiểu hai phiếu.
+\\
+
+SIFE
+&
+Sử dụng set-based representation, fuzzy granulation
+và các toán tử tiến hóa.
+&
+Triển khai Python port; dùng Jaccard distance làm proxy
+diversity thay cho fuzzy granulation nguyên bản.
+\\
+
+Bayesian Optimization
+&
+Sử dụng công cụ Bayesian Optimization trong MATLAB.
+&
+Sử dụng \texttt{BayesSearchCV}, kết hợp
+\texttt{TimeSeriesSplit} ba folds và 20 iterations.
+\\
+
+SHAP
+&
+Sử dụng SHAP để phân tích khả năng diễn giải của mô hình.
+&
+Sử dụng \texttt{PermutationExplainer} với ngân sách đánh giá
+giới hạn.
+\\
+
+\end{longtable}
+\normalsize
+
+Những điều chỉnh trên có ý nghĩa quan trọng khi phân tích kết quả.
+Thứ nhất, kết quả trên KAG phản ánh khả năng hoạt động của framework
+được hiện thực hóa trong môi trường Python, không phải một phép
+tái lập hoàn toàn giống nghiên cứu gốc. Thứ hai, các thay đổi như
+RReliefF, cơ chế tổng hợp Ensemble Filter và proxy diversity của
+SIFE có thể ảnh hưởng đến tập đặc trưng cuối cùng. Thứ ba, sự
+khác biệt về dữ liệu và thiết kế bài toán cũng khiến các chỉ số
+đánh giá giữa hai nghiên cứu không thể được so sánh trực tiếp
+một cách tuyệt đối.
+
+\subsection{Vai trò của framework tích hợp trong nghiên cứu}
+\label{subsec:integrated-framework-role}
+
+Framework tích hợp được xây dựng nhằm đánh giá đồng thời ba khía
+cạnh: chất lượng dự báo, mức độ thu gọn tập đặc trưng và khả năng
+diễn giải mô hình.
+
+Ensemble Filter kết hợp nhiều tiêu chí đánh giá để giảm sự phụ
+thuộc vào một bộ chọn đơn lẻ. SIFE tiếp tục đánh giá các tập con
+theo prediction error của estimator, đồng thời xem xét số lượng
+đặc trưng được giữ lại. Nhánh Hybrid S1S2 kết hợp hai bước này
+bằng cách thu hẹp tập ứng viên trước khi thực hiện tìm kiếm
+Wrapper.
+
+Về mặt không gian tìm kiếm, nếu số lượng biến ứng viên giảm từ
+36 xuống 10, số tập con tiềm năng giảm từ $2^{36}$ xuống $2^{10}$.
+Đây là lợi ích về quy mô không gian tìm kiếm, không có nghĩa
+thuật toán SIFE đã duyệt toàn bộ các tập con có thể có. SIFE
+vẫn là một thuật toán tìm kiếm heuristic với số lượng vòng lặp
+hữu hạn.
+
+Cuối cùng, SHAP cung cấp thông tin bổ sung về mức độ đóng góp
+của các biến đối với dự báo của mô hình. Nhờ đó, framework
+không chỉ đánh giá mô hình dựa trên sai số dự báo mà còn hỗ trợ
+phân tích vai trò của tập đặc trưng được lựa chọn.
+
+Như vậy, framework được hiện thực hóa trong nghiên cứu này
+kế thừa logic chính của nghiên cứu gốc nhưng có những điều
+chỉnh cụ thể về thuật toán và công cụ. Các kết quả thực nghiệm
+trên bộ dữ liệu KAG sẽ được trình bày ở những chương tiếp theo
+để đánh giá hiệu quả của từng chiến lược trong điều kiện dữ
+liệu và triển khai đã lựa chọn.

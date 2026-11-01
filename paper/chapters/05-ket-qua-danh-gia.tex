@@ -1,0 +1,629 @@
+\chapter{Kết quả và đánh giá}\label{chap:10}
+
+\section{Tổng quan kết quả thực nghiệm}\label{tux1ed5ng-quan-kux1ebft-quux1ea3-thux1ef1c-nghiux1ec7m}
+
+Notebook ghi nhận 20 cấu hình thuộc bốn feature subsets (S0, S1, S2, S1S2) và năm estimators; tất cả 20 dòng của `paper\_models\_results.csv` có `status=ok`, không có giá trị thiếu hoặc dòng lặp. Bốn baseline được lưu riêng. E1 và E2 có bảng CSV, predictions/configuration và figures trong `outputs/paper/extended\_experiments/`. Vì vậy, chương này phân tích các kết quả đã có đầu ra, không đưa các thử nghiệm chưa chạy vào kết luận.
+
+\section{Phân tích khám phá và tương quan}\label{phuxe2n-tuxedch-khuxe1m-phuxe1-vuxe0-tux1b0ux1a1ng-quan}
+
+Biến Appliances có mean 97,695 Wh, median 60 Wh, standard deviation 102,525 Wh, Q1=50 Wh, Q3=100 Wh và max 1.080 Wh. Phân phối lệch phải: phần lớn quan sát ở mức tiêu thụ thấp hơn, nhưng tồn tại các đỉnh cao. Boxplot IQR ghi nhận 2.138 giá trị ngoài cận 175 Wh; do không xóa outlier, các đỉnh vẫn hiện diện trong tập mô hình hóa. Điều này cần được xem khi diễn giải RMSE vì RMSE nhạy với sai số lớn.
+
+Autocorrelation của Appliances bằng 0,753166 tại lag 1 (10 phút), 0,323661 tại lag 6 (1 giờ) và 0,216741 tại lag 144 (1 ngày). Trên training partition, Pearson correlation giữa `Appliances\_t` và target là 0,756846. Kết quả hỗ trợ nhận định rằng biến lag mang thông tin gần thời điểm dự báo. Đây là liên hệ thống kê trong chuỗi, không chứng minh quan hệ nhân quả.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}@{}}
+\caption{Phân tích tương quan các biến với target.}\label{tab:04-ket-qua-danh-gia-0-ph-n-t-ch-t-ng-quan-c-c-bi-n-v-i-target}\\
+\toprule\noalign{}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Biến với target}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Pearson r}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Ghi chú}
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Biến với target}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Pearson r}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Ghi chú}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Appliances\_t & 0.756846 & Tương quan dương mạnh; biến lag của target. \\
+SinH & -0.260607 & Tương quan tuyến tính âm mức vừa. \\
+Hour\# & 0.215957 & Tương quan tuyến tính dương. \\
+lights & 0.208803 & Tương quan dương. \\
+CosH & -0.208112 & Tương quan tuyến tính âm. \\
+\end{longtable}
+
+Notebook thực hiện Pearson two-tailed trên training partition với ngưỡng α=0,01. Tuy nhiên, chuỗi có tự tương quan theo thời gian nên p-values cổ điển có thể đánh giá quá mức độ độc lập của quan sát; chưa áp dụng effective sample size, multiple-testing correction hoặc block bootstrap cho correlation test. Do đó các hệ số dùng chủ yếu để mô tả liên hệ tuyến tính.
+
+\section{Kết quả Feature Selection}\label{kux1ebft-quux1ea3-feature-selection}
+
+\subsection{Ensemble filter và tập S1}\label{ensemble-filter-vuxe0-tux1eadp-s1}
+
+S1 giữ đủ 10 features theo m=10 và min votes=2. `Appliances\_t` nhận 4 votes và average importance 1,000; các biến RH\_3, lights, SinH, T2, rv1, Hour\#, RH\_out, RH\_2 và CosH hoàn tất tập. Sự nổi bật của Appliances\_t nhất quán với autocorrelation và Pearson correlation đã quan sát. Những biến thời gian và sensor phản ánh các thông tin bổ trợ, nhưng điểm importance thấp hơn rõ rệt.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}@{}}
+\caption{Kết quả Ensemble filter S1.}\label{tab:04-ket-qua-danh-gia-1-k-t-qu-ensemble-filter-s1}\\
+\toprule\noalign{}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Thứ hạng S1}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Feature}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Votes}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Average importance}
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Thứ hạng S1}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Feature}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Votes}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Average importance}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & Appliances\_t & 4 & 1.000000 \\
+2 & RH\_3 & 3 & 0.304851 \\
+3 & lights & 3 & 0.303418 \\
+4 & SinH & 3 & 0.258778 \\
+5 & T2 & 2 & 0.236675 \\
+6 & rv1 & 2 & 0.231559 \\
+7 & Hour\# & 3 & 0.215373 \\
+8 & RH\_out & 2 & 0.201231 \\
+9 & RH\_2 & 2 & 0.132314 \\
+10 & CosH & 3 & 0.119418 \\
+\end{longtable}
+
+Cell 26 còn lưu phân tích độ nhạy số lượng đặc trưng m=5, 8, 10, 12, 15. Các tập có m=5, 8 và 10 lần lượt có 5, 8 và 10 biến trùng với S1 tại m=10; m=12 và m=15 có 8 biến overlap với S1. Đây là kiểm tra độ ổn định của lựa chọn theo cardinality trên bảng importance hiện tại, không phải thí nghiệm huấn luyện/đánh giá lại model ở từng m. Bằng chứng này cho thấy phần lõi của S1 ổn định hơn khi tăng m trong khoảng 5--10, còn các biến bổ sung khi m lớn hơn có thể thay đổi.
+
+\subsection{Kết quả S2 và S1S2}\label{kux1ebft-quux1ea3-s2-vuxe0-s1s2}
+
+Table 6 analogue trong notebook cho thấy S2 và S1S2 đều chọn duy nhất `Appliances\_t` đối với LASSO, SVR-Linear, SVR-RBF, GPR và LSBoost. Audit logs được người dùng cung cấp xác nhận S2 đã đánh giá 3.662--3.841 tập con duy nhất tùy model; S1S2 đánh giá 899--960 tập con. S1 không có SIFE audit bởi S1 là ensemble filter, không phải wrapper.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}@{}}
+\caption{Kết quả S2 và S1S2.}\label{tab:04-ket-qua-danh-gia-2-k-t-qu-s2-v-s1s2}\\
+\toprule\noalign{}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Track}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Model}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Số subset duy nhất đã đánh giá}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Subset cuối cùng}
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Track}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Model}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Số subset duy nhất đã đánh giá}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Subset cuối cùng}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+S2 & LASSO & 3785 & Appliances\_t \\
+S2 & SVR-Linear & 3841 & Appliances\_t \\
+S2 & SVR-RBF & 3805 & Appliances\_t \\
+S2 & GPR & 3662 & Appliances\_t \\
+S2 & LSBoost & 3835 & Appliances\_t \\
+S1S2 & LASSO & 936 & Appliances\_t \\
+S1S2 & SVR-Linear & 960 & Appliances\_t \\
+S1S2 & SVR-RBF & 939 & Appliances\_t \\
+S1S2 & GPR & 899 & Appliances\_t \\
+S1S2 & LSBoost & 935 & Appliances\_t \\
+\end{longtable}
+
+Các con số là số subset duy nhất thực sự được ghi vào evaluation logs, không phải số tổ hợp toàn bộ 2\^{}p đã duyệt và cũng không chứng minh tối ưu toàn cục. Kết quả một feature ở cuối phản ánh nghiệm theo objective có cả RMSE validation và subset penalty; không thể chỉ từ số vòng đánh giá suy ra thuật toán đã tìm được nghiệm tối ưu tuyệt đối.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 0\tabcolsep) * \real{1.0000}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Diễn giải quan trọng về SIFE}
+
+Audit output cho LSBoost cho thấy tập có RMSE validation thấp nhất có thể gồm nhiều biến hơn tập đạt objective thấp nhất. Vì hàm mục tiêu cộng lỗi với tỷ lệ feature, nghiệm được chọn cuối cùng có thể ưu tiên tập một biến dù validation RMSE của nó cao hơn một tập lớn hơn. Đây là biểu hiện trực tiếp của trade-off accuracy--sparsity mà SIFE được thiết kế để tối ưu, đồng thời đặt ra câu hỏi về trọng số w1/w2 khi áp dụng trên KAG.
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\end{longtable}
+
+\section{Bayesian Optimization}\label{bayesian-optimization-1}
+
+Bayesian Optimization chạy trên training partition qua TimeSeriesSplit 3 folds, 20 iterations cho mỗi estimator. Bảng dưới tổng hợp tham số tốt nhất ghi trong cell 47. Các giá trị này là kết quả search của notebook, không phải tham số Table 3 của nghiên cứu gốc.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.5000}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.5000}}@{}}
+\caption{Tham số tốt nhất từ Bayesian Optimization.}\label{tab:04-ket-qua-danh-gia-4-tham-s-t-t-nh-t-t-bayesian-optimization}\\
+\toprule\noalign{}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Model}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Best parameters đã tìm được}
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Model}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Best parameters đã tìm được}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+LASSO & alpha = 0.0002888177 \\
+SVR-Linear & C = 36.3661383; epsilon = 0.0002657135 \\
+SVR-RBF & C = 43.1636967; gamma = 0.0011268743; epsilon = 0.0151827249 \\
+GPR & alpha = 0.1; length\_scale = 2.0 \\
+LSBoost & learning\_rate = 0.01; max\_leaf\_nodes = 4; n\_estimators = 250 \\
+\end{longtable}
+
+Notebook ghi nhận validation best scores trong search: LASSO 0,062402; SVR-Linear 0,063067; SVR-RBF 0,064026; GPR 0,069082; LSBoost 0,065428. Đây là score của quy trình tuning trên training split, không phải RMSE holdout và không dùng để xếp hạng cuối cùng.
+
+\section{Kết quả forecasting trên holdout test}\label{kux1ebft-quux1ea3-forecasting-truxean-holdout-test}
+
+S1-LSBoost là cấu hình có RMSE thấp nhất trong 20 cấu hình: 61,223997 Wh. S0-LSBoost đạt 61,274424 Wh; chênh lệch giảm RMSE của S1 so với S0 cùng estimator chỉ khoảng 0,082\%. Mặc dù S1 giảm số biến từ 36 xuống 10, mức cải thiện accuracy của cặp LSBoost này rất nhỏ. Không có phép kiểm định thống kê hoặc repeated seeds độc lập để kết luận chênh lệch nhỏ này có ý nghĩa thống kê.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}@{}}
+\caption{Xếp hạng 20 cấu hình forecasting.}\label{tab:04-ket-qua-danh-gia-5-x-p-h-ng-20-c-u-h-nh-forecasting}\\
+\toprule\noalign{}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Subset}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Model}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{n}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{RMSE (Wh)}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{MAE (Wh)}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{MAPE (\%)}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{R²}
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Subset}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Model}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{n}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{RMSE (Wh)}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{MAE (Wh)}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{MAPE (\%)}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{R²}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+S1 & LSBoost & 10 & 61.224 & 26.544 & 24.25 & 0.5477 \\
+S0 & LSBoost & 36 & 61.274 & 26.525 & 24.22 & 0.5470 \\
+S0 & LASSO & 36 & 61.280 & 27.385 & 25.88 & 0.5469 \\
+S2 & LSBoost & 1 & 61.298 & 26.693 & 24.51 & 0.5466 \\
+S1S2 & LSBoost & 1 & 61.298 & 26.693 & 24.51 & 0.5466 \\
+S1 & LASSO & 10 & 61.321 & 26.929 & 24.97 & 0.5463 \\
+S1 & GPR & 10 & 61.575 & 27.337 & 25.22 & 0.5425 \\
+S1 & SVR-RBF & 10 & 61.587 & 25.240 & 21.49 & 0.5424 \\
+S1S2 & GPR & 1 & 61.643 & 26.881 & 25.43 & 0.5415 \\
+S2 & GPR & 1 & 61.643 & 26.881 & 25.43 & 0.5415 \\
+S1S2 & LASSO & 1 & 61.890 & 27.284 & 26.10 & 0.5378 \\
+S2 & LASSO & 1 & 61.890 & 27.284 & 26.10 & 0.5378 \\
+S0 & SVR-RBF & 36 & 61.957 & 25.267 & 20.87 & 0.5368 \\
+S0 & SVR-Linear & 36 & 62.077 & 25.223 & 21.23 & 0.5350 \\
+S1 & SVR-Linear & 10 & 62.086 & 25.074 & 20.98 & 0.5349 \\
+S2 & SVR-RBF & 1 & 62.138 & 25.437 & 21.46 & 0.5341 \\
+S1S2 & SVR-RBF & 1 & 62.138 & 25.437 & 21.46 & 0.5341 \\
+S2 & SVR-Linear & 1 & 62.794 & 25.196 & 20.43 & 0.5242 \\
+S1S2 & SVR-Linear & 1 & 62.794 & 25.196 & 20.43 & 0.5242 \\
+S0 & GPR & 36 & 68.969 & 40.662 & 45.72 & 0.4261 \\
+\end{longtable}
+
+Bảng trên sắp xếp theo RMSE tăng dần. SVR-RBF trong S1 đạt MAE thấp hơn LSBoost nhưng RMSE cao hơn; điều này cho thấy thứ hạng phụ thuộc metric. Do RMSE nhạy với residual lớn, không nên chọn mô hình chỉ theo một chỉ số nếu ứng dụng thực tế quan tâm các dạng sai số khác nhau.
+
+\subsection{Hiệu năng trung bình theo subset}\label{hiux1ec7u-nux103ng-trung-buxecnh-theo-subset}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}@{}}
+\caption{Hiệu năng trung bình theo feature subset.}\label{tab:04-ket-qua-danh-gia-6-hi-u-n-ng-trung-b-nh-theo-feature-subset}\\
+\toprule\noalign{}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Subset}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Số feature trung bình}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{RMSE mean}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{MAE mean}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{MAPE mean (\%)}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{R² mean}
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Subset}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Số feature trung bình}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{RMSE mean}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{MAE mean}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{MAPE mean (\%)}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{R² mean}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+S1 & 10.0 & 61.559 & 26.225 & 23.38 & 0.5428 \\
+S1S2 & 1.0 & 61.953 & 26.298 & 23.58 & 0.5369 \\
+S2 & 1.0 & 61.953 & 26.298 & 23.58 & 0.5369 \\
+S0 & 36.0 & 63.112 & 29.012 & 27.58 & 0.5184 \\
+\end{longtable}
+
+Khi lấy trung bình qua năm estimator, S1 có RMSE mean 61,559 Wh, thấp hơn S0 63,112 Wh (giảm khoảng 2,46\%), trong khi số feature giảm từ 36 xuống 10. S2 và S1S2 có cùng kết quả trung bình bởi tất cả các estimator nhận cùng một biến `Appliances\_t` ở hai track. Điều này cho thấy trong KAG, filter ensemble đạt cân bằng tốt hơn theo RMSE trung bình giữa năm model, còn wrapper/hybrid tạo subset rất thưa nhưng không cải thiện metric trung bình so với S1.
+
+\section{So sánh với baseline models}\label{so-suxe1nh-vux1edbi-baseline-models}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}@{}}
+\caption{So sánh với baseline models.}\label{tab:04-ket-qua-danh-gia-7-so-s-nh-v-i-baseline-models}\\
+\toprule\noalign{}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Baseline}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Số feature}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{RMSE (Wh)}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{MAE (Wh)}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{MAPE (\%)}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{R²}
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Baseline}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Số feature}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{RMSE (Wh)}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{MAE (Wh)}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{MAPE (\%)}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{R²}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Ridge & 36 & 61.393 & 26.333 & 23.14 & 0.5452 \\
+HistGradient\allowbreak Boosting & 36 & 64.145 & 33.991 & 34.23 & 0.5036 \\
+Persistence & 1 & 66.438 & 26.651 & 21.94 & 0.4674 \\
+RandomForest & 36 & 97.809 & 65.065 & 72.56 & -0.1543 \\
+\end{longtable}
+
+Ridge đạt RMSE 61,393 Wh và MAE 26,333 Wh, gần với S1-LSBoost (61,224 Wh; 26,544 Wh). Persistence đạt RMSE 66,438 Wh, tốt hơn RandomForest và HistGradient\allowbreak Boosting trong cấu hình cố định hiện tại, nhưng thấp hơn các cấu hình tốt nhất. RandomForest đạt RMSE 97,809 Wh và R² âm. Các baseline này không được Bayesian-optimized giống năm model chính và sử dụng feature/parameter settings khác nhau; do đó so sánh mang tính tham chiếu, không phải benchmark hoàn toàn cân bằng.
+
+\section{Kết quả SHAP}\label{kux1ebft-quux1ea3-shap}
+
+Trong mỗi track S1, S2 và S1S2, notebook chọn estimator có RMSE holdout tốt nhất, đều là LSBoost. S1 có 10 features, background 40 rows, explain 30 rows và max\_evals=21. Kết quả mean absolute SHAP của S1: `Appliances\_t` 48,267; `SinH` 1,088; `CosH` 0,933; `Hour\#` 0,245; sáu biến còn lại trong subset có mean absolute SHAP bằng 0 trong mẫu giải thích. S2 và S1S2 chỉ có `Appliances\_t`, với mean absolute SHAP 48,818.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.2000}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.2000}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.2000}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.2000}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.2000}}@{}}
+\caption{Kết quả SHAP theo ba nhánh.}\label{tab:04-ket-qua-danh-gia-8-k-t-qu-shap-theo-ba-nh-nh}\\
+\toprule\noalign{}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Track}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Model}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{n features}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{max\_evals}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{SHAP importance nổi bật}
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Track}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Model}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{n features}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{max\_evals}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{SHAP importance nổi bật}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+S1 & LSBoost & 10 & 21 & Appliances\_t 48.267; SinH 1.088; CosH 0.933; Hour\# 0.245 \\
+S2 & LSBoost & 1 & 3 & Appliances\_t 48.818 \\
+S1S2 & LSBoost & 1 & 3 & Appliances\_t 48.818 \\
+\end{longtable}
+
+Các giá trị SHAP gần 0 không đồng nghĩa biến hoàn toàn không có ý nghĩa vật lý hoặc không có quan hệ với target. Kết quả dựa trên 30 test rows và Permutation\allowbreak Explainer có ngân sách đánh giá giới hạn; các predictors tương quan cũng có thể chia sẻ hoặc thay thế thông tin. Do đó nên diễn giải SHAP ở đây là mức tác động mô hình ước lượng trong mẫu giải thích, không phải tầm quan trọng nhân quả hoặc đại diện đầy đủ cho toàn bộ phân phối test.
+
+\section{E1 -- Lag Feature Ablation}\label{e1-lag-feature-ablation}
+
+E1 giữ nguyên tập S1 đã chọn cho LSBoost, loại đúng `Appliances\_t` và huấn luyện lại estimator trên 9 feature còn lại. Cùng train/test split, target và scaler được dùng; mô hình gốc được khôi phục từ checkpoint và RMSE tái tính khớp chính xác 61,2239966 với kết quả paper mode. Đây là ablation có kiểm soát của subset S1, không phải Full No-Lag: Feature Selection không được chạy lại trên toàn bộ 35 candidate features.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}@{}}
+\caption{Kết quả E1 Lag Feature Ablation.}\label{tab:04-ket-qua-danh-gia-9-k-t-qu-e1-lag-feature-ablation}\\
+\toprule\noalign{}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Cấu hình}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{n features}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{RMSE (Wh)}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{MAE (Wh)}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{R²}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{RMSE change}
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Cấu hình}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{n features}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{RMSE (Wh)}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{MAE (Wh)}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{R²}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{RMSE change}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+S1-LSBoost & 10 & 61.224 & 26.544 & 0.5477 & 0.00\% \\
+S1-LSBoost-NoLag & 9 & 85.967 & 47.975 & 0.1083 & +40.41\% \\
+\end{longtable}
+
+Khi bỏ `Appliances\_t`, RMSE tăng 40,414\% và MAE tăng khoảng 80,76\%; R² giảm từ 0,5477 xuống 0,1083. Đây là bằng chứng định lượng cho thấy thông tin tiêu thụ điện tại thời điểm liền trước có vai trò đáng kể trong dự báo ngắn hạn 10 phút. Tuy nhiên, E1 không chứng minh các biến còn lại là vô ích; mô hình vẫn đạt R² dương. Nó cũng chưa trả lời liệu một lần chạy lại S1/S2/S1S2 trên 35 biến không có lag có tìm được biến thay thế tốt hơn hay không.
+
+\section{E2 -- Gaussian Noise Robustness}\label{e2-gaussian-noise-robustness}
+
+E2 sử dụng S1-LSBoost đã huấn luyện, không retrain model. Nhiễu Gaussian độc lập được cộng vào tất cả 10 feature của holdout test trên không gian đã MinMax scaling; target không thay đổi. Các mức σ là 0, 0,05, 0,10 và 0,20; mỗi mức chạy 5 lần, tổng cộng 20 lần suy luận (gồm năm lần clean giống nhau). Nhiễu không bị clipping về {[}0,1{]}, do đó một số giá trị đầu vào bị nhiễu có thể nằm ngoài miền train.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1667}}@{}}
+\caption{Kết quả E2 Gaussian Noise Robustness.}\label{tab:04-ket-qua-danh-gia-10-k-t-qu-e2-gaussian-noise-robustness}\\
+\toprule\noalign{}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{σ}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Mức nhiễu quy ước}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{RMSE mean ± SD (Wh)}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{MAE mean (Wh)}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{R² mean}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{RMSE tăng}
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{σ}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Mức nhiễu quy ước}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{RMSE mean ± SD (Wh)}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{MAE mean (Wh)}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{R² mean}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{RMSE tăng}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+0.00 & 0\% & 61.224 ± 0.000 & 26.544 & 0.5477 & 0.00\% \\
+0.05 & 5\% & 73.881 ± 0.553 & 44.871 & 0.3414 & 20.67\% \\
+0.10 & 10\% & 92.324 ± 0.769 & 61.843 & -0.0285 & 50.80\% \\
+0.20 & 20\% & 124.661 ± 0.889 & 86.439 & -0.8751 & 103.62\% \\
+\end{longtable}
+
+RMSE tăng đơn điệu theo độ lệch chuẩn nhiễu: 20,67\% ở σ=0,05; 50,80\% ở σ=0,10; 103,62\% ở σ=0,20. R² chuyển âm ở σ=0,10 (−0,0285) và tiếp tục giảm ở σ=0,20 (−0,8751), tức mô hình dự báo kém hơn baseline dự báo trung bình target trên tập test theo định nghĩa R². Độ lệch chuẩn RMSE giữa năm lần lặp tương đối nhỏ (0,553; 0,769; 0,889 Wh), cho thấy mức suy giảm nhất quán với các seed nhiễu đã dùng.
+
+Mức 5\%, 10\%, 20\% là cách gọi theo σ của Gaussian noise trong không gian đặc trưng đã MinMax scaling; không phải phần trăm sai số theo Wh hoặc ước lượng trực tiếp độ nhiễu thiết bị đo ngoài thực tế. Thí nghiệm chỉ kiểm tra một estimator và một feature subset, nên kết luận robustness cần được giới hạn trong cấu hình này.
+
+\section{Thảo luận tổng hợp và mức độ tái hiện}\label{thux1ea3o-luux1eadn-tux1ed5ng-hux1ee3p-vuxe0-mux1ee9c-ux111ux1ed9-tuxe1i-hiux1ec7n}
+
+\subsection{Đối chiếu với kết quả bài báo gốc}\label{ux111ux1ed1i-chiux1ebfu-vux1edbi-kux1ebft-quux1ea3-buxe0i-buxe1o-gux1ed1c}
+
+Trên dữ liệu UK, bài báo xác định S1 gồm 10 features, S2 trung bình 7 features và S1S2 trung bình 3,8 features. S2-SVR-RBF đạt RMSE 0,9051; rRMSE 6,0024; MAPE 4,7836; MAE 0,6740; R² 0,8870 trong Table 7, và là model có accuracy cao nhất theo bài báo {[}1{]}. S1S2 rút số biến trung bình xuống 3,8, trong khi các metric vẫn ở mức cao theo bối cảnh dữ liệu gốc. Đây là bằng chứng bài báo đưa ra cho khả năng trade-off giữa compactness và prediction quality.
+
+Trên KAG, S1-LSBoost có RMSE thấp nhất; S2/S1S2 chỉ còn `Appliances\_t`. Sự khác biệt không chứng minh framework gốc thất bại: dữ liệu KAG có tần suất cao, một target thiết bị, one-step horizon và lag target có autocorrelation rất cao; còn bài báo sử dụng dữ liệu monthly tổng hợp cấp quốc gia với các yếu tố kinh tế-xã hội và tiêu thụ nhiều nguồn năng lượng. Thang đo target cũng khác, do đó không so sánh trị số RMSE tuyệt đối giữa hai nghiên cứu.
+
+\subsection{Những ưu thế phương pháp đã được kiểm tra}\label{nhux1eefng-ux1b0u-thux1ebf-phux1b0ux1a1ng-phuxe1p-ux111uxe3-ux111ux1b0ux1ee3c-kiux1ec3m-tra}
+
+Framework cho phép quan sát ba trade-off khác nhau trên cùng split: S0 đại diện full features, S1 cho hiệu năng trung bình tốt nhất trong bốn subset, còn S2/S1S2 tạo subset cực gọn nhưng không cải thiện RMSE mean. So với dùng một filter đơn, ensemble filter kết hợp bốn góc nhìn và voting; so với chỉ dựa filter, wrapper dùng validation error của estimator; so với wrapper chạy trực tiếp trên S0, hybrid bắt đầu trên S1 để giảm không gian search. Đây là ưu thế về thiết kế và khả năng so sánh, không phải bằng chứng rằng mọi nhánh luôn đạt accuracy tốt hơn.
+
+Trong kết quả hiện tại, S1 trung bình qua năm models có RMSE 61,559 Wh so với S0 63,112 Wh, đồng thời giảm số biến trung bình từ 36 xuống 10. Tuy nhiên, cấu hình S1-LSBoost chỉ cải thiện RMSE 0,082\% so với S0-LSBoost. Vì thế evidence cho lợi ích ensemble filter là rõ hơn khi nhìn trung bình qua 5 estimators, còn lợi ích riêng của S1-LSBoost so với S0-LSBoost là nhỏ.
+
+S2 và S1S2 cho thấy mặt còn lại của objective SIFE: subset cực nhỏ, nhưng một biến `Appliances\_t` đã mang phần lớn thông tin cho 10 phút kế tiếp. E1 xác nhận bỏ biến này làm RMSE tăng mạnh. Kết quả gợi ý rằng SIFE đã tối ưu trong một bối cảnh autoregressive rất mạnh; nó không tự động tìm ra nhiều yếu tố cảm biến có ý nghĩa hơn nếu hàm mục tiêu ưu tiên mạnh độ gọn và validation error được chi phối bởi lag.
+
+Baseline Ridge đạt RMSE gần nhất với S1-LSBoost. Vì baseline chưa được tuning tương đương, chưa thể khẳng định framework vượt trội có ý nghĩa thống kê. Điểm mạnh của framework nằm ở thiết kế benchmark nhiều subsets, model-aware wrapper và interpretability, hơn là một lời hứa thắng mọi mô hình phổ thông.
+
+\subsection{Bảng đối chiếu mức độ tương đương}\label{bux1ea3ng-ux111ux1ed1i-chiux1ebfu-mux1ee9c-ux111ux1ed9-tux1b0ux1a1ng-ux111ux1b0ux1a1ng}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}@{}}
+\caption{Tổng hợp mức độ tương đương với bài báo gốc.}\label{tab:04-ket-qua-danh-gia-11-t-ng-h-p-m-c-t-ng-ng-v-i-b-i-b-o-g-c}\\
+\toprule\noalign{}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Thành phần}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Bài báo gốc}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Notebook}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Đánh giá}
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Thành phần}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Bài báo gốc}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Notebook}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Đánh giá}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Dataset & UK national monthly EC; 18 variables. & KAG single-home 10-min; 36 candidate features. & Khác miền; không so sánh metric trực tiếp. \\
+Feature selectors & mRMR, RF, Relief, F-test; ensemble. & mRMR, RF, RReliefF, F-test; equal-score weighting. & Cùng nhóm; Relief adaptation và scoring khác. \\
+Ensemble filter & Iterative elimination, weighted average and votes. & Top-m voting, normalized equal-weight average. & Tương đương ý tưởng, không trùng hoàn toàn thủ tục. \\
+SIFE & Fuzzy granulation, three-parent set crossover. & Python port; Jaccard diversity proxy. & Không phải source MATLAB gốc. \\
+Models & LASSO, SVR-L, SVR-RBF, GPR, LSBoost. & Scikit-learn mappings; caps for GPR/SVR. & Cùng model families; implementation differs. \\
+Optimization & MATLAB Bayesian Optimization. & BayesSearchCV; 20 iterations; 3-fold time split. & Khác library and resource budget. \\
+SHAP & Shapley analysis and heatmaps. & Permutation\allowbreak Explainer; 30 samples; max\_evals=2M+1. & Approximate, limited sample. \\
+E1/E2 & Not central original experiments. & Lag ablation and Gaussian noise robustness. & Extensions only; not original method. \\
+\end{longtable}
+
+\subsection{Giới hạn và nguy cơ ảnh hưởng tính hợp lệ}\label{giux1edbi-hux1ea1n-vuxe0-nguy-cux1a1-ux1ea3nh-hux1b0ux1edfng-tuxednh-hux1ee3p-lux1ec7}
+
+\begin{itemize}
+\item
+  Dataset chỉ kéo dài khoảng 4,5 tháng và đại diện một ngôi nhà. Một chronological holdout duy nhất giúp tránh shuffle leakage nhưng chưa đánh giá generalization qua mùa hoặc nhiều building.
+\item
+  `Appliances\_t` là biến lag ở horizon 10 phút và có tương quan mạnh với target. Điều này làm bài toán thực nghiệm gần với autoregressive short-horizon forecasting; các kết quả Feature Selection có thể ưu tiên lag hơn những drivers môi trường.
+\item
+  SIFE Python port dùng Jaccard thay cho fuzzy granulation; đánh giá tối đa 1.500 hàng và inner chronological validation. Các subset logs không phủ toàn bộ không gian 2\^{}p, nên không chứng minh nghiệm toàn cục.
+\item
+  GPR, LSBoost, SVR và Bayesian Optimization được ánh xạ sang scikit-learn; các resource caps, kernel và hyperparameter spaces khác MATLAB. SIFE objective dùng RMSE trên scaled y trong inner validation.
+\item
+  SHAP chỉ giải thích 30 test samples với 40 background rows và ngân sách Permutation\allowbreak Explainer nhỏ. Không được coi là Exact SHAP, cũng không thể kết luận causal.
+\item
+  Baseline models có cấu hình cố định và không được tuning cùng ngân sách Bayes như năm models chính. Một random seed và một holdout test cũng chưa cho phép đánh giá sai số chuẩn hoặc kiểm định khác biệt thống kê.
+\item
+  Trong E2, nhiễu được thêm độc lập vào mọi feature trên thang MinMax đã scale, không clipping. Đây là perturbation stress test chứ không phải mô hình hóa thực nghiệm độ chính xác cảm biến cụ thể.
+\end{itemize}
+
+\section{Kết luận chương 5}\label{kux1ebft-luux1eadn-chux1b0ux1a1ng-4}
+
+Trên KAG, S1-LSBoost là cấu hình đứng đầu theo RMSE; S1 trung bình qua năm estimators cũng đạt RMSE thấp nhất giữa bốn subsets. Tuy nhiên chênh lệch S1-LSBoost so với S0-LSBoost rất nhỏ và Ridge baseline gần tương đương. S2/S1S2 có độ gọn tối đa nhưng chỉ dùng lag target; E1 và E2 xác nhận độ quan trọng của biến lag và độ nhạy nhiễu của mô hình. Những kết quả này phản ánh đúng dữ liệu và bản triển khai Python, nhưng không phải bằng chứng tái lập định lượng các kết quả quốc gia UK trong bài báo gốc.
