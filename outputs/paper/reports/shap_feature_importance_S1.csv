@@ -1,0 +1,11 @@
+feature_subset,model,feature,mean_abs_SHAP
+S1,LSBoost,Appliances_t,48.267421812567974
+S1,LSBoost,SinH,1.0877080385045772
+S1,LSBoost,CosH,0.9331657197639187
+S1,LSBoost,Hour#,0.24480919118897096
+S1,LSBoost,RH_3,0.0
+S1,LSBoost,lights,0.0
+S1,LSBoost,T2,0.0
+S1,LSBoost,rv1,0.0
+S1,LSBoost,RH_out,0.0
+S1,LSBoost,RH_2,0.0

@@ -1,0 +1,10 @@
+{
+  "rows": 19735,
+  "columns": 29,
+  "missing_cells": 0,
+  "duplicate_rows": 0,
+  "duplicate_timestamps": 0,
+  "timestamp_monotonic_increasing": true,
+  "most_common_interval": "0 days 00:10:00",
+  "interval_unique_count": 1
+}

@@ -1,0 +1,13 @@
+feature_subset,model,n_features,features
+S0,All,36,"lights, T1, RH_1, T2, RH_2, T3, RH_3, T4, RH_4, T5, RH_5, T6, RH_6, T7, RH_7, T8, RH_8, T9, RH_9, T_out, Press_mm_hg, RH_out, Windspeed, Visibility, Tdewpoint, rv1, Appliances_t, Mon#, SinM, CosM, Hour#, SinH, CosH, DOW#, SinDOW, CosDOW"
+S1,All,10,"Appliances_t, RH_3, lights, SinH, T2, rv1, Hour#, RH_out, RH_2, CosH"
+S2,LASSO,1,Appliances_t
+S1S2,LASSO,1,Appliances_t
+S2,SVR-Linear,1,Appliances_t
+S1S2,SVR-Linear,1,Appliances_t
+S2,SVR-RBF,1,Appliances_t
+S1S2,SVR-RBF,1,Appliances_t
+S2,GPR,1,Appliances_t
+S1S2,GPR,1,Appliances_t
+S2,LSBoost,1,Appliances_t
+S1S2,LSBoost,1,Appliances_t

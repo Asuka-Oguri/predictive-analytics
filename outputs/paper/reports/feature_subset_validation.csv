@@ -1,0 +1,6 @@
+,S0_count,S1_count,S2_count,S1S2_count,S2_is_subset_of_S0,S1S2_is_subset_of_S1,S1S2_is_subset_of_S0
+LASSO,36,10,1,1,True,True,True
+SVR-Linear,36,10,1,1,True,True,True
+SVR-RBF,36,10,1,1,True,True,True
+GPR,36,10,1,1,True,True,True
+LSBoost,36,10,1,1,True,True,True

@@ -1,0 +1,125 @@
+{
+  "created_at": "2026-11-01T08:48:25",
+  "experiment_mode": "paper",
+  "config": {
+    "project_name": "energy_forecasting_reproduction",
+    "experiment_revision": "ABC-1.2",
+    "experiment_mode": "paper",
+    "random_seed": 42,
+    "test_size": 0.2,
+    "target_raw": "Appliances",
+    "time_col": "date",
+    "forecast_horizon_steps": 1,
+    "sampling_interval_minutes": 10,
+    "n_filter_features": 10,
+    "minimum_votes": 2,
+    "SIFE_population": 120,
+    "SIFE_iterations": 60,
+    "SIFE_crossover_probability": 0.6,
+    "SIFE_mutation_probability": 0.5,
+    "SIFE_w1_error": 0.8,
+    "SIFE_w2_subset_size": 0.2,
+    "SIFE_eval_max_rows": 1500,
+    "Bayesian_Optimization_max_train_rows": 2500,
+    "SVR_max_train_rows": 2500,
+    "RReliefF_updates": 4000,
+    "Bayesian_Optimization_iterations": 20,
+    "Bayesian_Optimization_cv_splits": 3,
+    "SHAP_background_rows": 40,
+    "SHAP_explain_rows": 30
+  },
+  "split_info": {
+    "split_type": "chronological",
+    "train_rows": 15787,
+    "test_rows": 3947,
+    "train_start": "2016-01-11 17:00:00",
+    "train_end": "2016-04-30 08:00:00",
+    "test_start": "2016-04-30 08:10:00",
+    "test_end": "2016-05-27 17:50:00",
+    "test_fraction": 0.2
+  },
+  "dataset_path": "D:\\LMS\\dubao\\energy_forecasting_vscode_project\\energy_forecasting_vscode\\data\\raw\\KAG_energydata_complete.csv",
+  "dataset_sha256": "2820bf712ad0275cb18b85a05250926100d8e65ebb9f4d2d016ca91ea152a25d",
+  "experiment_revision": "ABC-1.2",
+  "dataset_shape_raw": [
+    19735,
+    29
+  ],
+  "dataset_shape_supervised": [
+    19734,
+    39
+  ],
+  "n_candidate_features": 36,
+  "S1": [
+    "Appliances_t",
+    "RH_3",
+    "lights",
+    "SinH",
+    "T2",
+    "rv1",
+    "Hour#",
+    "RH_out",
+    "RH_2",
+    "CosH"
+  ],
+  "S2_by_model": {
+    "LASSO": [
+      "Appliances_t"
+    ],
+    "SVR-Linear": [
+      "Appliances_t"
+    ],
+    "SVR-RBF": [
+      "Appliances_t"
+    ],
+    "GPR": [
+      "Appliances_t"
+    ],
+    "LSBoost": [
+      "Appliances_t"
+    ]
+  },
+  "S1S2_by_model": {
+    "LASSO": [
+      "Appliances_t"
+    ],
+    "SVR-Linear": [
+      "Appliances_t"
+    ],
+    "SVR-RBF": [
+      "Appliances_t"
+    ],
+    "GPR": [
+      "Appliances_t"
+    ],
+    "LSBoost": [
+      "Appliances_t"
+    ]
+  },
+  "best_configuration": {
+    "feature_subset": "S1",
+    "model": "LSBoost",
+    "n_features": 10,
+    "features": "Appliances_t, RH_3, lights, SinH, T2, rv1, Hour#, RH_out, RH_2, CosH",
+    "status": "ok",
+    "RMSE": 61.22399657772537,
+    "rRMSE_article_literal": 0.008350133988508337,
+    "NRMSE_mean_pct_supplement": 63.525529572103586,
+    "MAPE_pct_excluding_zero": 24.24922961549959,
+    "MAPE_excluded_zero_count": 0,
+    "sMAPE_pct_supplement": 21.392814595415512,
+    "MAE": 26.54385494271555,
+    "R2": 0.5477351048222967
+  },
+  "known_method_deviations": [
+    "Dataset and target differ from the UK monthly dataset in the article.",
+    "RReliefF is used as regression adaptation of Relief.",
+    "SIFE is a Python port; Jaccard diversity proxies fuzzy granulation.",
+    "KAG wrapper evaluation is temporally subsampled to the configured SIFE row cap.",
+    "Bayesian Optimization and final SVR fits use configured temporal row caps for computational feasibility.",
+    "GPR and LSBoost use scikit-learn approximations of MATLAB models.",
+    "BayesSearchCV and TimeSeriesSplit replace MATLAB Bayesian Optimization.",
+    "Cyclic hour and day-of-week features extend the paper's month encoding.",
+    "PermutationExplainer approximates SHAP values; it is not ExactExplainer."
+  ]
+}

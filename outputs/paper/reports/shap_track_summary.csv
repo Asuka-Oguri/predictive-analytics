@@ -1,0 +1,4 @@
+feature_subset,model,n_features,max_evals,figure
+S1,LSBoost,10,21,D:\LMS\dubao\energy_forecasting_vscode_project\energy_forecasting_vscode\outputs\paper\figures\shap_summary_S1_LSBoost.png
+S2,LSBoost,1,3,D:\LMS\dubao\energy_forecasting_vscode_project\energy_forecasting_vscode\outputs\paper\figures\shap_summary_S2_LSBoost.png
+S1S2,LSBoost,1,3,D:\LMS\dubao\energy_forecasting_vscode_project\energy_forecasting_vscode\outputs\paper\figures\shap_summary_S1S2_LSBoost.png

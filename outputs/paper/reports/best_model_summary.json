@@ -1,0 +1,15 @@
+{
+  "feature_subset": "S1",
+  "model": "LSBoost",
+  "n_features": 10,
+  "features": "Appliances_t, RH_3, lights, SinH, T2, rv1, Hour#, RH_out, RH_2, CosH",
+  "status": "ok",
+  "RMSE": 61.22399657772537,
+  "rRMSE_article_literal": 0.008350133988508337,
+  "NRMSE_mean_pct_supplement": 63.525529572103586,
+  "MAPE_pct_excluding_zero": 24.24922961549959,
+  "MAPE_excluded_zero_count": 0,
+  "sMAPE_pct_supplement": 21.392814595415512,
+  "MAE": 26.54385494271555,
+  "R2": 0.5477351048222967
+}

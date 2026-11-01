@@ -1,0 +1,6 @@
+requested_m,selected_count,selected_features,overlap_with_m10
+5,5,"Appliances_t, RH_3, lights, SinH, rv1",5
+8,8,"Appliances_t, RH_3, lights, SinH, T2, rv1, Hour#, RH_out",8
+10,10,"Appliances_t, RH_3, lights, SinH, T2, rv1, Hour#, RH_out, RH_2, CosH",10
+12,12,"Appliances_t, RH_3, lights, SinH, T2, rv1, Hour#, Windspeed, Visibility, RH_out, RH_5, T6",8
+15,15,"Appliances_t, RH_3, lights, SinH, T2, rv1, Hour#, Windspeed, Visibility, RH_out, RH_5, RH_1, T8, T1, T6",8
