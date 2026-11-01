@@ -1,0 +1,15 @@
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+\begin{otherlanguage}{english}
+
+This report studies and re-implements the energy-consumption forecasting framework proposed by Eskandari et al. (2024), which combines feature selection, five machine-learning estimators, and SHAP to jointly examine predictive accuracy, feature compactness, and interpretability. Instead of the original UK national monthly energy-consumption dataset, the experiments use the Appliances Energy Prediction dataset (`KAG\_energydata\_complete.csv`), containing 19,735 observations sampled every 10 minutes from a low-energy residential building in Belgium. The task is formulated as one-step-ahead forecasting: observations at time t are used to predict appliance energy use at t+1, corresponding to a 10-minute horizon.
+
+The workflow includes data-quality checks, cyclical temporal features, chronological 80/20 splitting, training-only MinMax scaling, four base feature selectors (mRMR, Random Forest, RReliefF, and F-test FS), three selection tracks (S1, S2, and S1S2), Bayesian Optimization, five estimators (LASSO, SVR-Linear, SVR-RBF, GPR, and LSBoost), and SHAP analysis. All 20 forecasting configurations were recorded with status `ok`. S1-LSBoost achieved the lowest holdout RMSE (61.224 Wh), with MAE 26.544 Wh and R² 0.5477. S1 retained ten of the 36 candidate features, whereas S2 and S1S2 each selected only `Appliances\_t` for all five estimators. Additional baselines included Persistence, Ridge, RandomForest, and HistGradient\allowbreak Boosting.
+
+Two extensions were executed. In the controlled lag-feature ablation, removing `Appliances\_t` from the already selected S1 subset (ten to nine features) increased LSBoost RMSE by 40.41\%, from 61.224 to 85.967 Wh. In Gaussian-noise robustness tests, the mean RMSE increased by 20.67\%, 50.80\%, and 103.62\% at noise standard deviations of 0.05, 0.10, and 0.20, respectively, in the MinMax-scaled feature space. These results indicate that the latest appliance-consumption observation carries strong predictive information at a 10-minute horizon and that S1-LSBoost is sensitive to input perturbations.
+
+This work is a method re-implementation on a different dataset, not a direct replication of the original data or numerical results. Key deviations include the data domain and sampling frequency, the use of RReliefF for a continuous response, a Python SIFE port using Jaccard distance as a proxy for fuzzy granulation, scikit-learn mappings of MATLAB estimators, computational sample caps, and a budgeted Permutation\allowbreak Explainer. Consequently, conclusions are restricted to the KAG dataset and the executed configurations; KAG metrics are not directly comparable to Table 7 of the original paper.
+
+\emph{Keywords: Energy consumption forecasting; Feature Selection; Ensemble filter; SIFE; SHAP; LSBoost; Appliances Energy Prediction.}
+\end{otherlanguage}
+\clearpage

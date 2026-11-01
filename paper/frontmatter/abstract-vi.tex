@@ -1,0 +1,14 @@
+\chapter*{Tóm tắt}
+\thispagestyle{plain}
+\addcontentsline{toc}{chapter}{Tóm tắt}
+
+Báo cáo nghiên cứu và tái triển khai framework dự báo tiêu thụ năng lượng được đề xuất bởi Eskandari và cộng sự (2024), trong đó Feature Selection được kết hợp với năm mô hình học máy và SHAP nhằm đồng thời xem xét độ chính xác, tính gọn của tập biến và khả năng diễn giải. Thay vì sử dụng dữ liệu tiêu thụ năng lượng quốc gia theo tháng của Vương quốc Anh như nghiên cứu gốc, thực nghiệm này ánh xạ framework sang bộ dữ liệu Appliances Energy Prediction (KAG\_energydata\_complete.csv), gồm 19.735 quan sát được ghi nhận mỗi 10 phút tại một ngôi nhà hiệu quả năng lượng ở Bỉ. Bài toán được thiết kế thành dự báo một bước: sử dụng thông tin tại thời điểm t để dự báo Appliances tại thời điểm t+1, tương ứng 10 phút.
+
+Quy trình gồm kiểm tra chất lượng dữ liệu, xây dựng biến thời gian chu kỳ, chia dữ liệu theo thời gian với tỷ lệ 80/20, chuẩn hóa chỉ trên tập huấn luyện, bốn base feature selectors (mRMR, Random Forest, RReliefF và F-test FS), ba nhánh lựa chọn S1, S2 và S1S2, Bayesian Optimization, năm mô hình LASSO, SVR-Linear, SVR-RBF, GPR và LSBoost, cùng phân tích SHAP. Trong 20 cấu hình dự báo đã lưu, tất cả đều có trạng thái `ok`. Cấu hình S1-LSBoost đạt RMSE 61,224 Wh, MAE 26,544 Wh và R² = 0,5477, đứng đầu theo RMSE trên holdout test. S1 sử dụng 10/36 đặc trưng; trong khi S2 và S1S2 đều chọn duy nhất Appliances\_t cho cả năm estimator. Các baseline bổ sung gồm Persistence, Ridge, RandomForest và HistGradient\allowbreak Boosting.
+
+Hai thí nghiệm mở rộng đã được thực hiện và lưu kết quả. Lag Feature Ablation cho thấy khi loại Appliances\_t khỏi tập S1 đã chọn (từ 10 xuống 9 đặc trưng), RMSE của LSBoost tăng 40,41\%, từ 61,224 lên 85,967 Wh. Trong Gaussian Noise Robustness, RMSE trung bình tăng lần lượt 20,67\%, 50,80\% và 103,62\% tại các mức độ lệch chuẩn nhiễu 0,05; 0,10 và 0,20 trên không gian đặc trưng đã MinMax scaling. Các kết quả cho thấy giá trị hiện tại của tiêu thụ điện chứa thông tin dự báo rất mạnh đối với chân trời 10 phút, đồng thời mô hình S1-LSBoost nhạy với nhiễu đầu vào.
+
+Đây là method reproduction trên một dataset khác, không phải replication trực tiếp dữ liệu và trị số của bài báo gốc. Những khác biệt quan trọng gồm miền dữ liệu và tần suất, ánh xạ Relief sang RReliefF cho hồi quy, Python port của SIFE sử dụng Jaccard distance như proxy cho fuzzy granulation, ánh xạ MATLAB models sang scikit-learn, giới hạn mẫu tính toán và Permutation\allowbreak Explainer với ngân sách hữu hạn. Vì vậy, báo cáo chỉ kết luận trong phạm vi bộ dữ liệu KAG và cấu hình thực nghiệm đã chạy; không diễn giải các metric KAG như kết quả so sánh trực tiếp với Table 7 của bài báo.
+
+\emph{Từ khóa: Energy consumption forecasting; Feature Selection; Ensemble filter; SIFE; SHAP; LSBoost; KAG Appliances Energy Prediction.}
+\clearpage
